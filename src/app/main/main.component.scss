@@ -1,0 +1,23 @@
+@import "../../css/utilities";
+
+.main {
+  .logo {
+    margin: 50px 0;
+  }
+
+  .form-section {
+    max-width: 600px;
+    .connect {
+
+      img {
+        width: 28px;
+        margin-top: -4px;
+        margin-right: 5px;
+      }
+    }
+
+    .balance{
+        cursor:pointer;
+    }
+  }
+}

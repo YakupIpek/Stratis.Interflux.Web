@@ -1,0 +1,22 @@
+/* You can add global styles to this file, and also import other style files */
+
+/* Importing Bootstrap SCSS file. */
+@import '~bootstrap/scss/bootstrap';
+
+body {
+  background-image: url(/assets/background.jpg);
+  background-size: cover;
+  min-height:100vh;
+}
+
+.ng-invalid:not(.no-validation) {
+  &.ng-touched, &.ng-dirty {
+    @extend .is-invalid;
+  }
+}
+
+.ng-valid:not(.no-validation) {
+  &.ng-touched, &.ng-dirty {
+    @extend .is-valid;
+  }
+}
