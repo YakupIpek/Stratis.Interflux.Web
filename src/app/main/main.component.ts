@@ -85,8 +85,6 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   async connect() {
-    this.connected = true;
-
     try {
       this.connecting = true;
       var accounts: string[] = await this.getAccounts();
@@ -113,6 +111,7 @@ export class MainComponent implements OnInit, OnDestroy {
   setFullBalance() {
     this.form.get('amount')!.setValue(this.balance);
   }
+
   transfer() {
 
   }
