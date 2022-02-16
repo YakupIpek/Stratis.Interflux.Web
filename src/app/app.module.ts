@@ -21,7 +21,7 @@ import { CoinFormatPipe } from './services/coin.pipe';
     ReactiveFormsModule,
     FormsModule
   ],
-  providers: [],
+  providers: [{ provide: Window, useValue: window }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

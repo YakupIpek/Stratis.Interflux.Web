@@ -31,19 +31,18 @@
               <div *ngIf="address.errors?.['required']">Address is required.</div>
             </div>
           </div>
-
-          <div class="input-group">
+          <div class="input-group mb-3">
             <input type="text" class="form-control" [value]="amountValue" formControlName="amount" placeholder="Amount">
             <span class="input-group-text">{{ token?.ticker }}</span>
-            <div *ngIf="amount.invalid && (amount.dirty || amount.touched)" class="invalid-feedback">
-              <div *ngIf="amount.errors?.['required']">Amount is required.</div>
-              <div *ngIf="amount.errors?.['min']">Amount must be higher than zero.</div>
+            <div class="invalid-feedback d-flex justify-content-between">
+              <div [class.invisible]="!(amount.invalid && (amount.dirty || amount.touched))">
+                <div *ngIf="amount.errors?.['required']">Amount is required.</div>
+                <div *ngIf="amount.errors?.['min']">Amount must be higher than zero.</div>
+              </div>
+              <a href="" [routerLink]="" class="balance fw-bold justify-content-end text-decoration-none form-text" placement="right" ngbTooltip="Click here to paste" (click)="setFullBalance()">
+                {{ balance | coin }} {{ token?.ticker }}
+              </a>
             </div>
-          </div>
-          <div class="balance d-flex justify-content-end">
-            <a href="" [routerLink]="" class="mb-3 fw-bold justify-content-end text-decoration-none form-text" placement="right" ngbTooltip="Click here to paste" (click)="setFullBalance()">
-              {{ balance | coin }} {{ token?.ticker }}
-            </a>
           </div>
           <button type="submit" class="btn btn-primary btn-lg w-100 mb-3" (click)="transfer()">
             <i class="bi bi-wallet-fill"></i> Transfer {{ token?.ticker }}
