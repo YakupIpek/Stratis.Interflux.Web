@@ -7,6 +7,7 @@
 
   .form-section {
     max-width: 600px;
+
     .connect {
 
       img {
@@ -16,8 +17,10 @@
       }
     }
 
-    .balance{
-        cursor:pointer;
+    .balance {
+      a {
+        cursor: pointer;
+      }
     }
   }
 }

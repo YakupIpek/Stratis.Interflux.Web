@@ -3,6 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Chain } from '../services/chain';
 import { TokenService } from '../services/token.service';
 import { Token } from '../services/tokens';
+import { Utils } from '../services/utils';
 
 @Component({
   selector: 'app-main',
@@ -38,7 +39,7 @@ export class MainComponent implements OnInit {
     ];
 
     this.form = new FormGroup({
-      amount: new FormControl(null, { validators: [Validators.required] }),
+      amount: new FormControl(null, { validators: [Validators.required,Validators.min(Utils.toCRS(1))] }),
       address: new FormControl(null, { validators: [Validators.required] }),
     });
   }
