@@ -71,16 +71,12 @@ export class MainComponent implements OnInit, OnDestroy {
 
   async tokenSelected(event: Event) {
     const id = +(event.target as any).value;
-    this.token = this.tokens.find(t => t.id == id);
-    debugger
-    if (!this.token)
+
+    if (id == 0)
       return;
 
-    const balance = await this.token.balance(this.account);
-    const n = BigInt(10) ** BigInt(10);
-    /*let value = (BigInt(balance) / n) * n;//drop value under satoshi*/
-    this.balance = balance;
-    //this.balance = web3.utils.fromWei(balance, "ether");
+    this.token = this.tokens.find(t => t.id == id);
+    this.balance = await this.token!.balance(this.account);
   }
 
   toEther(amount: string) {
