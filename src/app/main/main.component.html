@@ -18,10 +18,10 @@
           <input type="text" class="form-control" [value]="account" disabled placeholder="Account">
           <span class="input-group-text"><i class="bi bi-person-fill me-1"></i>Account</span>
         </div>
-        <select class="form-select mb-3" (change)="tokenSelected($event)">
-          <option>Please Select Token</option>
+        <select class="form-select mb-3" [(ngModel)]="tokenId" [ngModelOptions]="{standalone: true}" (change)="tokenSelected()">
+          <option [ngValue]="0">Please Select Token</option>
           <optgroup *ngFor="let option of tokenOptions" [label]="option.title">
-            <option *ngFor="let token of option.tokens" [value]="token.id">{{ token.title }}</option>
+            <option *ngFor="let token of option.tokens" [ngValue]="token.id">{{ token.title }}</option>
           </optgroup>
         </select>
         <div [ngbCollapse]="token == null">
@@ -32,7 +32,7 @@
             </div>
           </div>
           <div class="input-group mb-3">
-            <input type="text" class="form-control" [value]="amountValue" formControlName="amount" placeholder="Amount">
+            <input type="number" class="form-control" [value]="amountValue" formControlName="amount" placeholder="Amount">
             <span class="input-group-text">{{ token?.ticker }}</span>
             <div class="invalid-feedback d-flex justify-content-between">
               <div [class.invisible]="!(amount.invalid && (amount.dirty || amount.touched))">

@@ -30,14 +30,15 @@ export class MainComponent implements OnInit, OnDestroy {
   chains: Chain[];
   ethereum: any;
   subscription = Subscription.EMPTY;
+  tokenId = 0;
 
   constructor(private tokenService: TokenService, window: Window) {
     this.chain = tokenService.chains[0];
     this.tokens = tokenService.tokens;
     this.chains = tokenService.chains;
     this.form = new FormGroup({
-      amount: new FormControl(null, { validators: [Validators.required, Validators.min(Utils.toCRS(1))] }),
       address: new FormControl(null, { validators: [Validators.required] }),
+      amount: new FormControl(null, { validators: [Validators.required, Validators.min(Utils.toCRS(1))] }),
     });
   }
 
@@ -56,6 +57,7 @@ export class MainComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
   }
+
   updateAccount(accounts: string[]) {
     if (accounts.length == 0) {
       this.connected = false;
@@ -69,13 +71,11 @@ export class MainComponent implements OnInit, OnDestroy {
 
 
 
-  async tokenSelected(event: Event) {
-    const id = +(event.target as any).value;
-
-    if (id == 0)
+  async tokenSelected() {
+    if (this.tokenId == 0)
       return;
 
-    this.token = this.tokens.find(t => t.id == id);
+    this.token = this.tokens.find(t => t.id == this.tokenId);
     this.balance = await this.token!.balance(this.account);
   }
 
@@ -131,24 +131,23 @@ export class MainComponent implements OnInit, OnDestroy {
     const token = this.token!;
     const chain = this.chain!;
 
-    if (token.destination == 'Strax') {
-      const amount = this.toWei(this.amount.value)
+    const amount = this.toWei(this.amount.value.toString())
+    debugger;
+    const callData = token.destination == 'Strax' ?
+      token.burnCall(amount, this.address.value) :
+      token.transferCall(chain.contractAddress, amount);
 
-      const callData = token.destination == 'Strax' ?
-        token.burnCall(amount, this.address.value) :
-        token.transferCall(chain.contractAddress, amount);
-
-      const txid = await this.ethereum.request({
-        method: 'eth_sendTransaction',
-        params: [
-          {
-            from: this.account,
-            to: token.erc20,
-            value: web3.utils.fromDecimal(0),
-            data: callData
-          }
-        ]
-      });
-    }
+    const txid = await this.ethereum.request({
+      method: 'eth_sendTransaction',
+      params: [
+        {
+          from: this.account,
+          to: token.erc20,
+          value: web3.utils.fromDecimal(0),
+          data: callData
+        }
+      ]
+    });
+    this.form.reset();
   }
 }
