@@ -12,6 +12,8 @@ export interface ChainData {
 export class Chain {
   id: string;
   name: string;
+
+  /**multi-sig address*/
   contractAddress: string;
   txUrlBase: string;
   contract: any;
@@ -43,14 +45,14 @@ export var chains = [
   {
     id: '0x1',
     name: 'Main',
-    contractAddress: '0xa61AB12Eb1964C5b478283d3233270800674aCe0',
+    contractAddress: '0xa61AB12Eb1964C5b478283d3233270800674aCe0',//Multi-sig address contract
     txUrlBase: 'https://etherscan.io/tx/'
   },
   {
     id: '0x3',
     name: 'Ropsten',
+    contractAddress: '0xa61AB12Eb1964C5b478283d3233270800674aCe0',//Multi-sig address contract
     txUrlBase: 'https://ropsten.etherscan.io/tx/',
-    contractAddress: '0xa61AB12Eb1964C5b478283d3233270800674aCe0'
   }
 ].map(data => new Chain(data));
 

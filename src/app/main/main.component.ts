@@ -1,10 +1,13 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { fromEvent, Subscription } from 'rxjs';
+import { createConstructor } from 'typescript';
+import { servicesVersion } from 'typescript';
 import { Chain } from '../services/chain';
 import { TokenService } from '../services/token.service';
 import { Token } from '../services/tokens';
 import { Utils } from '../services/utils';
+import { web3 } from '../services/web3';
 
 @Component({
   selector: 'app-main',
@@ -18,7 +21,7 @@ export class MainComponent implements OnInit, OnDestroy {
   account = '';
   addressValue = '';
   amountValue = 0;
-  balance = 0;
+  balance = '';
   chain?: Chain;
   tokenOptions: { title: string; tokens: Token[]; }[] = [];
   token?: Token;
@@ -41,11 +44,11 @@ export class MainComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.ethereum = (window as any).ethereum;
 
-    var subs = fromEvent<string[]>(this.ethereum, 'accountsChanged').subscribe(this.updateAccount);
+    let subs = fromEvent<string[]>(this.ethereum, 'accountsChanged').subscribe(this.updateAccount);
 
     this.subscription.add(subs);
 
-    var subs = fromEvent<string>(this.ethereum, 'chainChanged').subscribe(chainId => window.location.reload());
+    subs = fromEvent<string>(this.ethereum, 'chainChanged').subscribe(chainId => window.location.reload());
 
     this.subscription.add(subs);
   }
@@ -66,11 +69,23 @@ export class MainComponent implements OnInit, OnDestroy {
 
 
 
-  tokenSelected(event: Event) {
-    var id = +(event.target as any).value;
+  async tokenSelected(event: Event) {
+    const id = +(event.target as any).value;
     this.token = this.tokens.find(t => t.id == id);
+    debugger
+    if (!this.token)
+      return;
+
+    const balance = await this.token.balance(this.account);
+    const n = BigInt(10) ** BigInt(10);
+    /*let value = (BigInt(balance) / n) * n;//drop value under satoshi*/
+    this.balance = balance;
+    //this.balance = web3.utils.fromWei(balance, "ether");
   }
 
+  toEther(amount: string) {
+    return web3.utils.fromWei(amount, "ether");
+  }
   updateTokenOptions() {
     this.tokenOptions = [
       {
@@ -87,10 +102,10 @@ export class MainComponent implements OnInit, OnDestroy {
   async connect() {
     try {
       this.connecting = true;
-      var accounts: string[] = await this.getAccounts();
+      const accounts: string[] = await this.getAccounts();
 
       this.updateAccount(accounts);
-      var chainId: string = await this.getChainId();
+      const chainId: string = await this.getChainId();
       this.chain = this.chains.find(c => c.id == chainId);
 
       this.updateTokenOptions();
@@ -109,10 +124,35 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   setFullBalance() {
-    this.form.get('amount')!.setValue(this.balance);
+    this.form.get('amount')!.setValue(this.toEther(this.balance));
   }
 
-  transfer() {
+  toWei(amount: number): number {
+    return web3.utils.toWei(amount, "ether");
+  }
 
+  async transfer() {
+    const token = this.token!;
+    const chain = this.chain!;
+
+    if (token.destination == 'Strax') {
+      const amount = this.toWei(this.amount.value)
+
+      const callData = token.destination == 'Strax' ?
+        token.burnCall(amount, this.address.value) :
+        token.transferCall(chain.contractAddress, amount);
+
+      const txid = await this.ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from: this.account,
+            to: token.erc20,
+            value: web3.utils.fromDecimal(0),
+            data: callData
+          }
+        ]
+      });
+    }
   }
 }

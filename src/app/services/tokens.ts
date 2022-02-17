@@ -20,6 +20,17 @@ export class Token {
     this.erc20 = data.erc20;
     this.contract = new web3.eth.Contract(metadata, data.erc20);
   }
+
+  async balance(address:string): Promise<string> {
+    return await this.contract.methods.balanceOf(address).call();
+  }
+  burnCall(amount: number, address: string): string {
+    return this.contract.methods.burn(amount, address).encodeABI();
+  }
+
+  transferCall(to:string, amount: number): string {
+    return this.contract.methods.transfer(to, amount).encodeABI();
+  }
 }
 
 interface TokenData {
@@ -78,4 +89,4 @@ export var tokenValues: TokenData[] = [
   }
 ];
 
-export const tokens = tokenValues.map((data,i) => new Token(data,++i));
+export const tokens = tokenValues.map((data, i) => new Token(data, ++i));
