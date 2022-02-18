@@ -24,11 +24,12 @@
             <option *ngFor="let token of option.tokens" [ngValue]="token.id">{{ token.title }}</option>
           </optgroup>
         </select>
-        <div [ngbCollapse]="token == null">
+        <div [ngbCollapse]="!token">
           <div class="mb-3">
             <input type="text" class="form-control" formControlName="address" placeholder="{{ token?.destination }} Address">
             <div *ngIf="address.invalid && (address.dirty || address.touched)" class="invalid-feedback">
               <div *ngIf="address.errors?.['required']">Address is required.</div>
+              <div *ngIf="address.errors?.['address']">Address is invalid.</div>
             </div>
           </div>
           <div class="input-group mb-3">
@@ -38,6 +39,7 @@
               <div [class.invisible]="!(amount.invalid && (amount.dirty || amount.touched))">
                 <div *ngIf="amount.errors?.['required']">Amount is required.</div>
                 <div *ngIf="amount.errors?.['min']">Amount must be higher than zero.</div>
+                <div *ngIf="amount.errors?.['max']">Amount must be lower than your balance.</div>
               </div>
               <a href="" [routerLink]="" class="balance fw-bold justify-content-end text-decoration-none form-text" placement="right" ngbTooltip="Click here to paste" (click)="setFullBalance()">
                 {{ toEther(balance) | number:'1.2-2' }} {{ token?.ticker }}

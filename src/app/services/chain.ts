@@ -3,15 +3,15 @@ import { web3 } from './web3';
 
 export interface ChainData {
   id: string,
-  name: string,
-  txUrlBase: string,
+  name: 'Ropsten' | 'Main',
   //key-value pair
-  contractAddress: string
+  contractAddress: string,
+  txUrlBase: string,
 }
 
 export class Chain {
   id: string;
-  name: string;
+  name: 'Ropsten' | 'Main';
 
   /**multi-sig address*/
   contractAddress: string;
@@ -41,7 +41,7 @@ export class Chain {
   }
 }
 
-export var chains = [
+let items :ChainData[] = [
   {
     id: '0x1',
     name: 'Main',
@@ -54,5 +54,7 @@ export var chains = [
     contractAddress: '0xa61AB12Eb1964C5b478283d3233270800674aCe0',//Multi-sig address contract
     txUrlBase: 'https://ropsten.etherscan.io/tx/',
   }
-].map(data => new Chain(data));
+]
+
+export let chains = items.map(data => new Chain(data));
 

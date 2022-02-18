@@ -1,8 +1,6 @@
-import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormControl, FormGroup, ValidationErrors, Validator, Validators } from '@angular/forms';
 import { fromEvent, Subscription } from 'rxjs';
-import { createConstructor } from 'typescript';
-import { servicesVersion } from 'typescript';
 import { Chain } from '../services/chain';
 import { TokenService } from '../services/token.service';
 import { Token } from '../services/tokens';
@@ -37,12 +35,30 @@ export class MainComponent implements OnInit, OnDestroy {
     this.tokens = tokenService.tokens;
     this.chains = tokenService.chains;
     this.form = new FormGroup({
-      address: new FormControl(null, { validators: [Validators.required] }),
-      amount: new FormControl(null, { validators: [Validators.required, Validators.min(Utils.toCRS(1))] }),
+      address: new FormControl(null, { validators: [Validators.required, this.validateAddress] }),
+      amount: new FormControl(null, { validators: [] }),
     });
   }
 
+  validateAddress = (): ValidationErrors => {
+    debugger;
+    if (!this.token)
+      return {};
+
+    const address = this.address.value as string;
+
+    if (!address)
+      return {};
+
+    const valid = address.length == 34 && address[0] == this.token.addressPrefix;
+
+    if (valid)
+      return {};
+
+    return { address: true };
+  }
   ngOnInit(): void {
+
     this.ethereum = (window as any).ethereum;
 
     let subs = fromEvent<string[]>(this.ethereum, 'accountsChanged').subscribe(this.updateAccount);
@@ -72,16 +88,24 @@ export class MainComponent implements OnInit, OnDestroy {
 
 
   async tokenSelected() {
-    if (this.tokenId == 0)
+    if (this.tokenId == 0) {
+      this.token = undefined;
       return;
-
+    }
     this.token = this.tokens.find(t => t.id == this.tokenId);
     this.balance = await this.token!.balance(this.account);
+
+    this.amount.clearValidators();
+    this.amount.addValidators([Validators.required, Validators.min(Utils.toCRS(1)), Validators.max(this.toEther(this.balance))])
+
+    this.amount.updateValueAndValidity();
+    this.address.updateValueAndValidity();
   }
 
   toEther(amount: string) {
     return web3.utils.fromWei(amount, "ether");
   }
+
   updateTokenOptions() {
     this.tokenOptions = [
       {
@@ -90,9 +114,9 @@ export class MainComponent implements OnInit, OnDestroy {
       },
       {
         title: 'ETH To Cirrus Sidechain',
-        tokens: this.tokens.filter(t => t.destination == 'Cirrus'),
+        tokens: this.tokens.filter(t => t.destination == 'Cirrus' && t.chain == this.chain),
       }
-    ]
+    ];
   }
 
   async connect() {
@@ -149,5 +173,7 @@ export class MainComponent implements OnInit, OnDestroy {
       ]
     });
     this.form.reset();
+
+    console.log(txid);
   }
 }
