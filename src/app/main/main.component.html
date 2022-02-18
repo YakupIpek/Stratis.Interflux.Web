@@ -15,10 +15,10 @@
           {{ chain?.name }} Network
         </p>
         <div class="input-group mb-3">
-          <input type="text" class="form-control" [value]="account" disabled placeholder="Account">
+          <input type="text" class="form-control" [value]="account" disabled readonly placeholder="Account">
           <span class="input-group-text"><i class="bi bi-person-fill me-1"></i>Account</span>
         </div>
-        <select class="form-select mb-3" [(ngModel)]="tokenId" [ngModelOptions]="{standalone: true}" (change)="tokenSelected()">
+        <select class="form-select mb-3" [(ngModel)]="tokenId" [ngModelOptions]="{standalone: true}" (change)="tokenSelected()" [disabled]="address.disabled">
           <option [ngValue]="0">Please Select Token</option>
           <optgroup *ngFor="let option of tokenOptions" [label]="option.title">
             <option *ngFor="let token of option.tokens" [ngValue]="token.id">{{ token.title }}</option>
@@ -26,16 +26,23 @@
         </select>
         <div [ngbCollapse]="!token">
           <div class="mb-3">
-            <input class="form-control" formControlName="address" placeholder="{{ token?.destination }} Address" autocomplete="off">
-            <div *ngIf="address.invalid && (address.dirty || address.touched)" class="invalid-feedback">
-              <div *ngIf="address.errors?.['required']">Address is required.</div>
-              <div *ngIf="address.errors?.['address']">Address is invalid.</div>
-              <div *ngIf="address.errors?.['addressRegistery']">
-                Address is not registered. Please click here to
-              <a [routerLink]="" (click)="registerAddress()" class="link-primary">Register</a>
+            <div class="input-group address">
+              <input type="text" class="form-control" formControlName="address" placeholder="{{ token?.destination }} Address">
+              <span class="input-group-text">To </span>
+              <div *ngIf="address.invalid && (address.dirty || address.touched)" class="invalid-feedback">
+                <div *ngIf="address.errors?.['required']">Address is required.</div>
+                <div *ngIf="address.errors?.['address']">Address is not valid {{ token?.destination }} address.</div>
+                <div *ngIf="address.errors?.['addressRegistery']">
+                  Address is not registered. Please click here to
+                  <a [routerLink]="" (click)="registerAddress()" class="link-primary">Register</a>
+                </div>
               </div>
             </div>
+            <div class="d-flex align-items-center form-text" *ngIf="this.address.disabled">
+              {{ this.registeryMessage }}<div class="spinner-border spinner-border-sm ms-1"></div>
+            </div>
           </div>
+
           <div class="input-group mb-3">
             <input type="number" class="form-control" formControlName="amount" placeholder="Amount">
             <span class="input-group-text">{{ token?.ticker }}</span>

@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AsyncValidatorFn, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { async, fromEvent, of, Subscription } from 'rxjs';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { async, concatMap, defer, delay, filter, from, fromEvent, interval, map, Subscription, take, takeUntil, timer } from 'rxjs';
 import { Chain } from '../services/chain';
 import { TokenService } from '../services/token.service';
 import { Token } from '../services/tokens';
@@ -28,6 +28,7 @@ export class MainComponent implements OnInit, OnDestroy {
   subscription = Subscription.EMPTY;
   tokenId = 0;
   returnAddress?: string;
+  registeryMessage = 'Please submit transaction...';
 
   constructor(private tokenService: TokenService) {
     this.tokens = tokenService.tokens;
@@ -40,6 +41,7 @@ export class MainComponent implements OnInit, OnDestroy {
 
 
   ngOnInit(): void {
+
     this.ethereum = (window as any).ethereum;
 
     let subs = fromEvent<string[]>(this.ethereum, 'accountsChanged').subscribe(this.updateAccount);
@@ -73,31 +75,44 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   validateAddressRegistery = async () => {
-    if (this.token?.destination != 'Cirrus')
-      return {};
-
-    const address = await this.token.chain.getAddress(this.account);
-
-    if (address == this.address.value)
+    if (this.token?.destination != 'Cirrus' || this.returnAddress == this.address.value)
       return {};
 
     return { addressRegistery: true };
   }
 
   async registerAddress() {
-    var data = this.token!.chain.registerAddressCall(this.address.value);
+    try {
+      this.registeryMessage = 'Transaction submit is waiting...'
+      this.form.disable();
+      const newAddress = this.address.value as string;
+      var data = this.token!.chain.registerAddressCall(newAddress);
+      const txid = await this.ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from: this.account,
+            to: this.token!.chain.contractAddress,
+            value: web3.utils.fromDecimal(0),
+            data: data
+          }
+        ]
+      });
 
-    const txid = await this.ethereum.request({
-      method: 'eth_sendTransaction',
-      params: [
-        {
-          from: this.account,
-          to: this.token!.chain.contractAddress,
-          value: web3.utils.fromDecimal(0),
-          data: data
-        }
-      ]
-    });
+      this.registeryMessage = 'The address is registering now. Please keep waiting...';
+      const tx = await interval(2000).pipe(
+        concatMap(async val => await web3.eth.getTransaction(txid)),
+        filter(x => x.blockNumber > 0),
+        take(1),
+        delay(1000)
+      ).toPromise();
+
+      this.returnAddress = await this.token!.chain.getAddress(this.account);
+      this.form.enable();
+    } catch (e) {
+      this.form.enable();
+    }
+
   }
 
   updateAccount(accounts: string[]) {
@@ -111,22 +126,13 @@ export class MainComponent implements OnInit, OnDestroy {
   get amount() { return this.form.get('amount')!; }
   get address() { return this.form.get('address')!; }
 
-
-
   async tokenSelected() {
     if (this.tokenId == 0) {
       this.token = undefined;
       return;
     }
+
     this.token = this.tokens.find(t => t.id == this.tokenId);
-    this.balance = await this.token!.balance(this.account);
-
-    this.amount.clearValidators();
-    this.amount.addValidators([Validators.required, Validators.min(Utils.toCRS(1)), Validators.max(this.toEther(this.balance))])
-
-    this.amount.updateValueAndValidity();
-    this.address.updateValueAndValidity();
-
 
     if (!this.address.dirty && this.token!.destination == 'Cirrus') {
       this.address.setValue(this.returnAddress);
@@ -134,6 +140,13 @@ export class MainComponent implements OnInit, OnDestroy {
       this.address.setValue(null);
     }
 
+    this.balance = await this.token!.balance(this.account);
+
+    this.amount.clearValidators();
+    this.amount.addValidators([Validators.required, Validators.min(Utils.toCRS(1)), Validators.max(this.toEther(this.balance))])
+
+    this.amount.updateValueAndValidity();
+    this.address.updateValueAndValidity();
   }
 
   toEther(amount: string) {
