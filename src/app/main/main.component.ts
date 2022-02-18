@@ -75,7 +75,10 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   validateAddressRegistery = async () => {
-    if (this.token?.destination != 'Cirrus' || this.returnAddress == this.address.value)
+    if (this.token?.destination == 'Cirrus')
+      return {};
+
+    if (this.returnAddress == this.address.value)
       return {};
 
     return { addressRegistery: true };
