@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup, ValidationErrors, Validator, Validators } from '@angular/forms';
-import { fromEvent, Subscription } from 'rxjs';
+import { AsyncValidatorFn, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { async, fromEvent, of, Subscription } from 'rxjs';
 import { Chain } from '../services/chain';
 import { TokenService } from '../services/token.service';
 import { Token } from '../services/tokens';
@@ -17,8 +17,6 @@ export class MainComponent implements OnInit, OnDestroy {
   connecting = false;
   metaMaskInstalled = false;
   account = '';
-  addressValue = '';
-  amountValue = 0;
   balance = '';
   chain?: Chain;
   tokenOptions: { title: string; tokens: Token[]; }[] = [];
@@ -29,19 +27,35 @@ export class MainComponent implements OnInit, OnDestroy {
   ethereum: any;
   subscription = Subscription.EMPTY;
   tokenId = 0;
+  returnAddress?: string;
 
-  constructor(private tokenService: TokenService, window: Window) {
-    this.chain = tokenService.chains[0];
+  constructor(private tokenService: TokenService) {
     this.tokens = tokenService.tokens;
     this.chains = tokenService.chains;
     this.form = new FormGroup({
-      address: new FormControl(null, { validators: [Validators.required, this.validateAddress] }),
+      address: new FormControl(null, { validators: [Validators.required, this.validateAddress], asyncValidators: [this.validateAddressRegistery] }),
       amount: new FormControl(null, { validators: [] }),
     });
   }
 
-  validateAddress = (): ValidationErrors => {
-    debugger;
+
+  ngOnInit(): void {
+    this.ethereum = (window as any).ethereum;
+
+    let subs = fromEvent<string[]>(this.ethereum, 'accountsChanged').subscribe(this.updateAccount);
+
+    this.subscription.add(subs);
+
+    subs = fromEvent<string>(this.ethereum, 'chainChanged').subscribe(chainId => window.location.reload());
+
+    this.subscription.add(subs);
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
+
+  validateAddress = () => {
     if (!this.token)
       return {};
 
@@ -57,21 +71,33 @@ export class MainComponent implements OnInit, OnDestroy {
 
     return { address: true };
   }
-  ngOnInit(): void {
 
-    this.ethereum = (window as any).ethereum;
+  validateAddressRegistery = async () => {
+    if (this.token?.destination != 'Cirrus')
+      return {};
 
-    let subs = fromEvent<string[]>(this.ethereum, 'accountsChanged').subscribe(this.updateAccount);
+    const address = await this.token.chain.getAddress(this.account);
 
-    this.subscription.add(subs);
+    if (address == this.address.value)
+      return {};
 
-    subs = fromEvent<string>(this.ethereum, 'chainChanged').subscribe(chainId => window.location.reload());
-
-    this.subscription.add(subs);
+    return { addressRegistery: true };
   }
 
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
+  async registerAddress() {
+    var data = this.token!.chain.registerAddressCall(this.address.value);
+
+    const txid = await this.ethereum.request({
+      method: 'eth_sendTransaction',
+      params: [
+        {
+          from: this.account,
+          to: this.token!.chain.contractAddress,
+          value: web3.utils.fromDecimal(0),
+          data: data
+        }
+      ]
+    });
   }
 
   updateAccount(accounts: string[]) {
@@ -100,6 +126,14 @@ export class MainComponent implements OnInit, OnDestroy {
 
     this.amount.updateValueAndValidity();
     this.address.updateValueAndValidity();
+
+
+    if (!this.address.dirty && this.token!.destination == 'Cirrus') {
+      this.address.setValue(this.returnAddress);
+    } else if (!this.address.dirty) {
+      this.address.setValue(null);
+    }
+
   }
 
   toEther(amount: string) {
@@ -129,6 +163,9 @@ export class MainComponent implements OnInit, OnDestroy {
       this.chain = this.chains.find(c => c.id == chainId);
 
       this.updateTokenOptions();
+
+      this.returnAddress = await this.chain!.getAddress(this.account);
+
       this.connected = true;
     } catch { }
 
@@ -156,7 +193,6 @@ export class MainComponent implements OnInit, OnDestroy {
     const chain = this.chain!;
 
     const amount = this.toWei(this.amount.value.toString())
-    debugger;
     const callData = token.destination == 'Strax' ?
       token.burnCall(amount, this.address.value) :
       token.transferCall(chain.contractAddress, amount);

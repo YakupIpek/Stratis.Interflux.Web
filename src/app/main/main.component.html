@@ -26,14 +26,18 @@
         </select>
         <div [ngbCollapse]="!token">
           <div class="mb-3">
-            <input type="text" class="form-control" formControlName="address" placeholder="{{ token?.destination }} Address">
+            <input class="form-control" formControlName="address" placeholder="{{ token?.destination }} Address" autocomplete="off">
             <div *ngIf="address.invalid && (address.dirty || address.touched)" class="invalid-feedback">
               <div *ngIf="address.errors?.['required']">Address is required.</div>
               <div *ngIf="address.errors?.['address']">Address is invalid.</div>
+              <div *ngIf="address.errors?.['addressRegistery']">
+                Address is not registered. Please click here to
+              <a [routerLink]="" (click)="registerAddress()" class="link-primary">Register</a>
+              </div>
             </div>
           </div>
           <div class="input-group mb-3">
-            <input type="number" class="form-control" [value]="amountValue" formControlName="amount" placeholder="Amount">
+            <input type="number" class="form-control" formControlName="amount" placeholder="Amount">
             <span class="input-group-text">{{ token?.ticker }}</span>
             <div class="invalid-feedback d-flex justify-content-between">
               <div [class.invisible]="!(amount.invalid && (amount.dirty || amount.touched))">

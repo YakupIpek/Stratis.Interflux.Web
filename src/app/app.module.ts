@@ -18,7 +18,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     ReactiveFormsModule,
     FormsModule
   ],
-  providers: [{ provide: Window, useValue: window }],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

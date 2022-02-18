@@ -36,8 +36,8 @@ export class Chain {
     return this.txUrlBase + txId;
   }
 
-  registerAddress(crsAddress: string):string {
-    return this.contract.set('CirrusDestinationAddress', crsAddress);
+  registerAddressCall(crsAddress: string):string {
+    return this.contract.methods.set('CirrusDestinationAddress', crsAddress).encodeABI();
   }
 }
 
