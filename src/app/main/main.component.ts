@@ -41,7 +41,7 @@ export class MainComponent implements OnInit, OnDestroy {
 
 
   ngOnInit(): void {
-
+    console.log(web3);
     this.ethereum = (window as any).ethereum;
 
     let subs = fromEvent<string[]>(this.ethereum, 'accountsChanged').subscribe(this.updateAccount);
@@ -75,7 +75,7 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   validateAddressRegistery = async () => {
-    if (this.token?.destination == 'Cirrus')
+    if (this.token?.destination == 'Strax')
       return {};
 
     if (this.returnAddress == this.address.value)
@@ -103,6 +103,7 @@ export class MainComponent implements OnInit, OnDestroy {
       });
 
       this.registeryMessage = 'The address is registering now. Please keep waiting...';
+
       const tx = await interval(2000).pipe(
         concatMap(async val => await web3.eth.getTransaction(txid)),
         filter(x => x.blockNumber > 0),
@@ -110,11 +111,11 @@ export class MainComponent implements OnInit, OnDestroy {
         delay(1000)
       ).toPromise();
 
-      this.returnAddress = await this.token!.chain.getAddress(this.account);
-      this.form.enable();
-    } catch (e) {
-      this.form.enable();
+      this.returnAddress = newAddress;
+
+    } catch {
     }
+    this.form.enable();
 
   }
 
