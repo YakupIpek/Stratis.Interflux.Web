@@ -1,6 +1,7 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { async, concatMap, defer, delay, filter, from, fromEvent, interval, map, Subscription, take, takeUntil, timer } from 'rxjs';
+import { NgbAlert } from '@ng-bootstrap/ng-bootstrap';
+import { concatMap, delay, filter, fromEvent, interval, Subscription, take, timer } from 'rxjs';
 import { Chain } from '../services/chain';
 import { TokenService } from '../services/token.service';
 import { Token } from '../services/tokens';
@@ -28,8 +29,8 @@ export class MainComponent implements OnInit, OnDestroy {
   subscription = Subscription.EMPTY;
   tokenId = 0;
   returnAddress?: string;
-  registeryMessage = 'Please submit transaction...';
-
+  registeryMessage = '';
+  alert?: { type: string, message: string };
   constructor(private tokenService: TokenService) {
     this.tokens = tokenService.tokens;
     this.chains = tokenService.chains;
@@ -51,6 +52,10 @@ export class MainComponent implements OnInit, OnDestroy {
     subs = fromEvent<string>(this.ethereum, 'chainChanged').subscribe(chainId => window.location.reload());
 
     this.subscription.add(subs);
+  }
+
+  closeAlert() {
+    this.alert = undefined;
   }
 
   ngOnDestroy(): void {
@@ -113,6 +118,7 @@ export class MainComponent implements OnInit, OnDestroy {
 
       this.returnAddress = newAddress;
 
+      this.alert = { type: 'success', message: ' Your return address registered successfully.' };
     } catch {
     }
     this.form.enable();
@@ -214,7 +220,7 @@ export class MainComponent implements OnInit, OnDestroy {
       token.burnCall(amount, this.address.value) :
       token.transferCall(chain.contractAddress, amount);
 
-    const txid = await this.ethereum.request({
+    const txid = "asdfasdfsdf" ?? await this.ethereum.request({
       method: 'eth_sendTransaction',
       params: [
         {
@@ -225,8 +231,9 @@ export class MainComponent implements OnInit, OnDestroy {
         }
       ]
     });
-    this.form.reset();
 
-    console.log(txid);
+    this.amount.reset();
+    var a = `<a target="_blank" href="${chain.txUrl(txid)}">transfer details</a>.`;
+    this.alert = { type: 'success', message: 'The Transfer submitted successfully. See your  ' + a }
   }
 }

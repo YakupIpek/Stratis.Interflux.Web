@@ -11,6 +11,9 @@
 
     <div [(ngbCollapse)]="!connected">
       <form [formGroup]="form">
+        <ngb-alert *ngIf="alert" #alertEl [type]="alert.type" (closed)="closeAlert()">
+          <span [innerHtml]="alert.message"></span>
+        </ngb-alert>
         <p class="text-end text-muted">
           {{ chain?.name }} Network
         </p>
