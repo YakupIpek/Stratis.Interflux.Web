@@ -4,14 +4,18 @@
   </div>
   <div class="form-section mx-auto rounded border shadow p-4">
 
-    <button class="connect btn btn-lg w-100 mb-3" type="button" (click)="connect()" [class]="connected? 'btn-success': 'btn-primary'" [disabled]="connected || connecting">
+    <button *ngIf="!metaMaskInstalled" class="connect btn btn-info btn-lg w-100" (click)="install()">
+      <img src="../../assets/metamask-fox.svg" class="metamask-logo" />
+      Click here to install MetaMask!
+    </button>
+    <button *ngIf="metaMaskInstalled" class="connect btn btn-lg w-100" type="button" (click)="connect()" [class]="connected? 'btn-success': 'btn-primary'" [disabled]="connected || connecting">
       <img src="../../assets/metamask-fox.svg" class="metamask-logo">
       {{ connected ? 'Connected to MetaMask!': 'Connect to MetaMask' }}
     </button>
 
     <div [(ngbCollapse)]="!connected">
-      <form [formGroup]="form">
-        <ngb-alert *ngIf="alert" #alertEl [type]="alert.type" (closed)="closeAlert()" >
+      <form [formGroup]="form" class="mt-3">
+        <ngb-alert *ngIf="alert" #alertEl [type]="alert.type" (closed)="closeAlert()">
           <span [innerHtml]="alert.message"></span>
         </ngb-alert>
         <p class="text-end text-muted">
@@ -21,7 +25,7 @@
           <input type="text" class="form-control" [value]="account" disabled readonly placeholder="Account">
           <span class="input-group-text"><i class="bi bi-person-fill me-1"></i>Account</span>
         </div>
-        <select class="form-select mb-3" formControlName="tokenId" >
+        <select class="form-select mb-3" formControlName="tokenId">
           <option [ngValue]="0">Please Select Token</option>
           <optgroup *ngFor="let option of tokenOptions" [label]="option.title">
             <option *ngFor="let token of option.tokens" [ngValue]="token.id">{{ token.title }}</option>

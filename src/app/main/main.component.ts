@@ -7,6 +7,7 @@ import { TokenService } from '../services/token.service';
 import { Token } from '../services/tokens';
 import { Utils } from '../services/utils';
 import { web3 } from '../services/web3';
+import MetaMaskOnboarding from '@metamask/onboarding';
 
 @Component({
   selector: 'app-main',
@@ -16,7 +17,6 @@ import { web3 } from '../services/web3';
 export class MainComponent implements OnInit, OnDestroy {
   connected = false;
   connecting = false;
-  metaMaskInstalled = false;
   account = '';
   balance = '';
   chain?: Chain;
@@ -30,6 +30,7 @@ export class MainComponent implements OnInit, OnDestroy {
   returnAddress?: string;
   registeryMessage?: string;
   alert?: { type: string, message: string };
+  metaMaskInstalled: boolean;
   constructor(private tokenService: TokenService,
     @Inject('BASE_URL') public readonly baseUrl: string
   ) {
@@ -40,11 +41,15 @@ export class MainComponent implements OnInit, OnDestroy {
       address: new FormControl(null, { validators: [Validators.required, this.validateAddress], asyncValidators: [this.validateAddressRegistery] }),
       amount: new FormControl(null, { validators: [] }),
     });
+
+    this.metaMaskInstalled = MetaMaskOnboarding.isMetaMaskInstalled();
   }
 
   ngOnInit(): void {
-    console.log(web3);
     this.ethereum = (window as any).ethereum;
+
+    if (!this.ethereum)
+      return;
 
     let subscription = fromEvent<string[]>(this.ethereum, 'accountsChanged').subscribe(this.updateAccount);
 
@@ -259,5 +264,11 @@ export class MainComponent implements OnInit, OnDestroy {
         },
       },
     });
+  }
+
+  install() {
+    const onboarding = new MetaMaskOnboarding();
+    MetaMaskOnboarding.isMetaMaskInstalled
+    onboarding.startOnboarding();
   }
 }
