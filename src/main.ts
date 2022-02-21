@@ -8,5 +8,14 @@ if (environment.production) {
   enableProdMode();
 }
 
-platformBrowserDynamic().bootstrapModule(AppModule)
+export function getBaseUrl() {
+  var url = document.getElementsByTagName('base')[0].href;
+  return url.substr(0, url.length - 1);
+}
+
+const providers = [
+  { provide: 'BASE_URL', useFactory: getBaseUrl, deps: [] }
+];
+
+platformBrowserDynamic(providers).bootstrapModule(AppModule)
   .catch(err => console.error(err));

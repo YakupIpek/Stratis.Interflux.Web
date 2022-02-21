@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { NgbAlert } from '@ng-bootstrap/ng-bootstrap';
 import { concatMap, delay, filter, fromEvent, interval, Subscription, take, timer } from 'rxjs';
 import { Chain } from '../services/chain';
@@ -27,19 +27,20 @@ export class MainComponent implements OnInit, OnDestroy {
   chains: Chain[];
   ethereum: any;
   subscription = Subscription.EMPTY;
-  tokenId = 0;
   returnAddress?: string;
-  registeryMessage = '';
+  registeryMessage?: string;
   alert?: { type: string, message: string };
-  constructor(private tokenService: TokenService) {
+  constructor(private tokenService: TokenService,
+    @Inject('BASE_URL') public readonly baseUrl: string
+  ) {
     this.tokens = tokenService.tokens;
     this.chains = tokenService.chains;
     this.form = new FormGroup({
+      tokenId: new FormControl(0, { validators: [] }),
       address: new FormControl(null, { validators: [Validators.required, this.validateAddress], asyncValidators: [this.validateAddressRegistery] }),
       amount: new FormControl(null, { validators: [] }),
     });
   }
-
 
   ngOnInit(): void {
     console.log(web3);
@@ -52,7 +53,13 @@ export class MainComponent implements OnInit, OnDestroy {
     subs = fromEvent<string>(this.ethereum, 'chainChanged').subscribe(chainId => window.location.reload());
 
     this.subscription.add(subs);
+
+    this.tokenId.valueChanges.subscribe((value: number) => this.tokenSelected(value));
   }
+
+  get tokenId() { return this.form.get('tokenId')!; }
+  get amount() { return this.form.get('amount')!; }
+  get address() { return this.form.get('address')!; }
 
   closeAlert() {
     this.alert = undefined;
@@ -118,9 +125,11 @@ export class MainComponent implements OnInit, OnDestroy {
 
       this.returnAddress = newAddress;
 
-      this.alert = { type: 'success', message: ' Your return address registered successfully.' };
+      this.alert = { type: 'success', message: 'Your return address registered successfully.' };
     } catch {
     }
+
+    this.registeryMessage = undefined
     this.form.enable();
 
   }
@@ -133,16 +142,13 @@ export class MainComponent implements OnInit, OnDestroy {
     this.account = accounts[0];
   }
 
-  get amount() { return this.form.get('amount')!; }
-  get address() { return this.form.get('address')!; }
+  async tokenSelected(tokenId: number) {
 
-  async tokenSelected() {
-    if (this.tokenId == 0) {
-      this.token = undefined;
+    this.token = this.tokens.find(t => t.id == tokenId);
+
+    if (!this.token) {
       return;
     }
-
-    this.token = this.tokens.find(t => t.id == this.tokenId);
 
     if (!this.address.dirty && this.token!.destination == 'Cirrus') {
       this.address.setValue(this.returnAddress);
@@ -220,7 +226,8 @@ export class MainComponent implements OnInit, OnDestroy {
       token.burnCall(amount, this.address.value) :
       token.transferCall(chain.contractAddress, amount);
 
-    const txid = "asdfasdfsdf" ?? await this.ethereum.request({
+    this.form.disable();
+    const txid = await this.ethereum.request({
       method: 'eth_sendTransaction',
       params: [
         {
@@ -230,10 +237,25 @@ export class MainComponent implements OnInit, OnDestroy {
           data: callData
         }
       ]
-    });
+    }).finally(() => this.form.enable());
 
     this.amount.reset();
     var a = `<a target="_blank" href="${chain.txUrl(txid)}">transfer details</a>.`;
     this.alert = { type: 'success', message: 'The Transfer submitted successfully. See your  ' + a }
+  }
+
+  async addWallet() {
+    await this.ethereum.request({
+      method: 'wallet_watchAsset',
+      params: {
+        type: 'ERC20',
+        options: {
+          address: this.token!.erc20,
+          symbol: this.token!.ticker,
+          image: `${this.baseUrl}/assets/stratis-logo.svg`,
+          decimals: 18,
+        },
+      },
+    });
   }
 }
