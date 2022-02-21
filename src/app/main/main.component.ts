@@ -26,7 +26,7 @@ export class MainComponent implements OnInit, OnDestroy {
   tokens: Token[];
   chains: Chain[];
   ethereum: any;
-  subscription = Subscription.EMPTY;
+  subscription = new Subscription();
   returnAddress?: string;
   registeryMessage?: string;
   alert?: { type: string, message: string };
@@ -46,15 +46,17 @@ export class MainComponent implements OnInit, OnDestroy {
     console.log(web3);
     this.ethereum = (window as any).ethereum;
 
-    let subs = fromEvent<string[]>(this.ethereum, 'accountsChanged').subscribe(this.updateAccount);
+    let subscription = fromEvent<string[]>(this.ethereum, 'accountsChanged').subscribe(this.updateAccount);
 
-    this.subscription.add(subs);
+    this.subscription.add(subscription);
 
-    subs = fromEvent<string>(this.ethereum, 'chainChanged').subscribe(chainId => window.location.reload());
+    subscription = fromEvent<string>(this.ethereum, 'chainChanged').subscribe(chainId => window.location.reload());
 
-    this.subscription.add(subs);
+    this.subscription.add(subscription);
 
-    this.tokenId.valueChanges.subscribe((value: number) => this.tokenSelected(value));
+    subscription = this.tokenId.valueChanges.subscribe((value: number) => this.tokenSelected(value));
+
+    this.subscription.add(subscription);
   }
 
   get tokenId() { return this.form.get('tokenId')!; }
