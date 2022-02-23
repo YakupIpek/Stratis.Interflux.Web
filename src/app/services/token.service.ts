@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Chain, chains } from './chain';
-import { Token, tokens } from './tokens';
+import { Chain, CHAINS } from './chain';
+import { Token, TOKENS } from './tokens';
 import { web3 } from './web3';
 
 @Injectable({
@@ -12,7 +12,7 @@ export class TokenService {
   tokens: Token[];
   constructor() {
     this.web3 = web3;
-    this.chains = chains;
-    this.tokens = tokens;
+    this.chains = CHAINS;
+    this.tokens = TOKENS;
   }
 }

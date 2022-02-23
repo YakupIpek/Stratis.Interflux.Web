@@ -56,5 +56,5 @@ let items :ChainData[] = [
   }
 ]
 
-export let chains = items.map(data => new Chain(data));
+export const CHAINS = items.map(data => new Chain(data));
 
