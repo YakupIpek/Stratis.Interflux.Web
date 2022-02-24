@@ -1,4 +1,4 @@
-import { Chain, CHAINS } from './chain';
+import { Chain, chains } from './chain';
 import { metadata } from './erc20-metadata';
 import { web3 } from './web3';
 
@@ -44,8 +44,8 @@ interface TokenData {
   addressPrefix: string;
 }
 
-var mainnet = CHAINS[0];
-var ropsten = CHAINS[1];
+var mainnet = chains[0];
+var ropsten = chains[1];
 
 //export class DestinationChain {
 //  constructor(addressPrefix)
@@ -69,11 +69,20 @@ export var tokenValues: TokenData[] = [
 
   },
   {
+    ticker: 'TST-1',
+    chain: ropsten,
+    title: 'Token 1',
+    destination: 'Cirrus',
+    erc20: '0xf197f5f8c406d269e2cc44aaf495fbc4eb519634',
+    addressPrefix: 't'
+
+  },
+  {
     ticker: 'TST-2',
     chain: ropsten,
     title: 'Token 2',
     destination: 'Cirrus',
-    erc20: '0xf197f5f8c406d269e2cc44aaf495fbc4eb519634',
+    erc20: '0xa3c22370de5f9544f0c4de126b1e46ceadf0a51b',
     addressPrefix: 't'
 
   },
@@ -82,7 +91,7 @@ export var tokenValues: TokenData[] = [
     chain: ropsten,
     title: 'Token 3',
     destination: 'Cirrus',
-    erc20: '0xa3c22370de5f9544f0c4de126b1e46ceadf0a51b',
+    erc20: '0x5da5cfe7d4ce1cc0712ebc0bb58eff93817a6801',
     addressPrefix: 't'
 
   },
@@ -91,18 +100,9 @@ export var tokenValues: TokenData[] = [
     chain: ropsten,
     title: 'Token 4',
     destination: 'Cirrus',
-    erc20: '0x5da5cfe7d4ce1cc0712ebc0bb58eff93817a6801',
-    addressPrefix: 't'
-
-  },
-  {
-    ticker: 'TST-5',
-    chain: ropsten,
-    title: 'Token 5',
-    destination: 'Cirrus',
     erc20: '0x14f768657135d3daafb45d242157055f1c9143f3',
     addressPrefix: 't'
   }
 ];
 
-export const TOKENS = tokenValues.map((data, i) => new Token(data, ++i));
+export const tokens = tokenValues.map((data, i) => new Token(data, ++i));

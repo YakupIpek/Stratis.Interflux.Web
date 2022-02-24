@@ -1,11 +1,13 @@
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import MetaMaskOnboarding from '@metamask/onboarding';
-import { concatMap, delay, filter, fromEvent, interval, Subscription, take } from 'rxjs';
+import { Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { NgbAlert } from '@ng-bootstrap/ng-bootstrap';
+import { concatMap, delay, filter, fromEvent, interval, Subscription, take, timer } from 'rxjs';
 import { Chain } from '../services/chain';
 import { TokenService } from '../services/token.service';
 import { Token } from '../services/tokens';
 import { Utils } from '../services/utils';
+import { web3 } from '../services/web3';
+import MetaMaskOnboarding from '@metamask/onboarding';
 
 @Component({
   selector: 'app-main',
@@ -29,13 +31,11 @@ export class MainComponent implements OnInit, OnDestroy {
   registeryMessage?: string;
   alert?: { type: string, message: string };
   metaMaskInstalled: boolean;
-  web3: any;
   constructor(private tokenService: TokenService,
     @Inject('BASE_URL') public readonly baseUrl: string
   ) {
     this.tokens = tokenService.tokens;
     this.chains = tokenService.chains;
-    this.web3 = tokenService.web3;
     this.form = new FormGroup({
       tokenId: new FormControl(0, { validators: [] }),
       address: new FormControl(null, { validators: [Validators.required, this.validateAddress], asyncValidators: [this.validateAddressRegistery] }),
@@ -115,7 +115,7 @@ export class MainComponent implements OnInit, OnDestroy {
           {
             from: this.account,
             to: this.token!.chain.contractAddress,
-            value: this.web3.utils.fromDecimal(0),
+            value: web3.utils.fromDecimal(0),
             data: data
           }
         ]
@@ -124,7 +124,7 @@ export class MainComponent implements OnInit, OnDestroy {
       this.registeryMessage = 'The address is registering now. Please keep waiting...';
 
       const tx = await interval(2000).pipe(
-        concatMap(async val => await this.web3.eth.getTransaction(txid)),
+        concatMap(async val => await web3.eth.getTransaction(txid)),
         filter(x => x.blockNumber > 0),
         take(1),
         delay(1000)
@@ -173,7 +173,7 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   toEther(amount: string) {
-    return this.web3.utils.fromWei(amount, "ether");
+    return web3.utils.fromWei(amount, "ether");
   }
 
   updateTokenOptions() {
@@ -221,7 +221,7 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   toWei(amount: number): number {
-    return this.web3.utils.toWei(amount, "ether");
+    return web3.utils.toWei(amount, "ether");
   }
 
   async transfer() {
@@ -240,7 +240,7 @@ export class MainComponent implements OnInit, OnDestroy {
         {
           from: this.account,
           to: token.erc20,
-          value: this.web3.utils.fromDecimal(0),
+          value: web3.utils.fromDecimal(0),
           data: callData
         }
       ]
