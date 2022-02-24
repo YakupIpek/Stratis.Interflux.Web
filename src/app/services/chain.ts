@@ -4,7 +4,7 @@ import { web3 } from './web3';
 export interface ChainData {
   id: string,
   name: 'Ropsten' | 'Main',
-  //key-value pair
+  /**multi-sig address*/
   contractAddress: string,
   txUrlBase: string,
 }
@@ -36,12 +36,12 @@ export class Chain {
     return this.txUrlBase + txId;
   }
 
-  registerAddressCall(crsAddress: string):string {
+  registerAddressCall(crsAddress: string): string {
     return this.contract.methods.set('CirrusDestinationAddress', crsAddress).encodeABI();
   }
 }
 
-let items :ChainData[] = [
+let items: ChainData[] = [
   {
     id: '0x1',
     name: 'Main',
@@ -51,7 +51,7 @@ let items :ChainData[] = [
   {
     id: '0x3',
     name: 'Ropsten',
-    contractAddress: '0xa61AB12Eb1964C5b478283d3233270800674aCe0',//Multi-sig address contract
+    contractAddress: '0xd2390da742872294BE05dc7359D7249d7C79460E',//Multi-sig address contract
     txUrlBase: 'https://ropsten.etherscan.io/tx/',
   }
 ]
