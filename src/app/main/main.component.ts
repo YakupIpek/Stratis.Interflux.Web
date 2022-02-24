@@ -114,7 +114,7 @@ export class MainComponent implements OnInit, OnDestroy {
         params: [
           {
             from: this.account,
-            to: this.token!.chain.contractAddress,
+            to: this.token!.chain.kvStoreAddress,
             value: this.web3.utils.fromDecimal(0),
             data: data
           }
@@ -231,7 +231,7 @@ export class MainComponent implements OnInit, OnDestroy {
     const amount = this.toWei(this.amount.value.toString())
     const callData = token.destination == 'Strax' ?
       token.burnCall(amount, this.address.value) :
-      token.transferCall(chain.contractAddress, amount);
+      token.transferCall(chain.multisigAddress, amount);
 
     this.form.disable();
     const txid = await this.ethereum.request({

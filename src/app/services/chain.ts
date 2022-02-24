@@ -5,7 +5,8 @@ export interface ChainData {
   id: string,
   name: 'Ropsten' | 'Main',
   /**multi-sig address*/
-  contractAddress: string,
+  multisigAddress: string;
+  kvStoreAddress: string,
   txUrlBase: string,
 }
 
@@ -14,17 +15,19 @@ export class Chain {
   name: 'Ropsten' | 'Main';
 
   /**multi-sig address*/
-  contractAddress: string;
+  multisigAddress: string;
+  kvStoreAddress: string;
   txUrlBase: string;
   contract: any;
   constructor(data: ChainData) {
 
     this.id = data.id;
     this.name = data.name;
-    this.contractAddress = data.contractAddress;
+    this.kvStoreAddress = data.kvStoreAddress;
+    this.multisigAddress = data.multisigAddress;
     this.txUrlBase = data.txUrlBase;
 
-    this.contract = new web3.eth.Contract(metadata, data.contractAddress);
+    this.contract = new web3.eth.Contract(metadata, data.kvStoreAddress);
   }
 
   async getAddress(account: string) {
@@ -45,16 +48,18 @@ let items: ChainData[] = [
   {
     id: '0x1',
     name: 'Main',
-    contractAddress: '0xa61AB12Eb1964C5b478283d3233270800674aCe0',//Multi-sig address contract
+    kvStoreAddress: '',
+    multisigAddress: '',
     txUrlBase: 'https://etherscan.io/tx/'
   },
   {
     id: '0x3',
     name: 'Ropsten',
-    contractAddress: '0xd2390da742872294BE05dc7359D7249d7C79460E',//Multi-sig address contract
+    multisigAddress: '0xd2390da742872294BE05dc7359D7249d7C79460E',
+    kvStoreAddress: '0xa61AB12Eb1964C5b478283d3233270800674aCe0',//Multi-sig address contract
     txUrlBase: 'https://ropsten.etherscan.io/tx/',
   }
 ]
 
-export const CHAINS = items.map(data => new Chain(data));
+export var CHAINS = items.map(data => new Chain(data));
 
