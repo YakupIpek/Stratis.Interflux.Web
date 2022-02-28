@@ -2,6 +2,7 @@ import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import MetaMaskOnboarding from '@metamask/onboarding';
 import { concatMap, delay, filter, fromEvent, interval, Subscription, take } from 'rxjs';
+import { AddressValidator } from '../services/address';
 import { Chain } from '../services/chain';
 import { TokenService } from '../services/token.service';
 import { Token } from '../services/tokens';
@@ -30,8 +31,10 @@ export class MainComponent implements OnInit, OnDestroy {
   alert?: { type: string, message: string };
   metaMaskInstalled: boolean;
   web3: any;
-  constructor(private tokenService: TokenService,
-    @Inject('BASE_URL') public readonly baseUrl: string
+  constructor(
+    private tokenService: TokenService,
+    private addressValidator:AddressValidator,
+    @Inject('BASE_URL') private baseUrl: string
   ) {
     this.tokens = tokenService.tokens;
     this.chains = tokenService.chains;
@@ -84,8 +87,8 @@ export class MainComponent implements OnInit, OnDestroy {
 
     if (!address)
       return {};
-
-    const valid = address.length == 34 && address[0] == this.token.addressPrefix;
+    
+    const valid = this.token.validateAddress(address);
 
     if (valid)
       return {};

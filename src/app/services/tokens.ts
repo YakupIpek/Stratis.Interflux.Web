@@ -1,6 +1,7 @@
 import { Chain, CHAINS } from './chain';
 import { metadata } from './erc20-metadata';
 import { web3 } from './web3';
+declare let base58Check: any;
 
 export class Token {
   id: number;
@@ -9,7 +10,7 @@ export class Token {
   title: string;
   erc20: string;
   destination: 'Strax' | 'Cirrus';
-  addressPrefix: string;
+  addressPrefix: number;
   private contract: any;
 
   constructor(data: TokenData, id: number) {
@@ -33,6 +34,16 @@ export class Token {
   transferCall(to: string, amount: number): string {
     return this.contract.methods.transfer(to, amount).encodeABI();
   }
+
+  /**Validates destination address for cirrus or strax networks */
+  validateAddress(address: string) {
+    try {
+      var result = base58Check.decode(address);
+      return result.prefix[0] == this.addressPrefix;
+    } catch (e) {
+      return false;
+    }
+  }
 }
 
 interface TokenData {
@@ -41,7 +52,7 @@ interface TokenData {
   title: string,
   destination: 'Strax' | 'Cirrus',
   erc20: string,
-  addressPrefix: string;
+  addressPrefix: number;
 }
 
 var mainnet = CHAINS[0];
@@ -57,7 +68,7 @@ export var tokenValues: TokenData[] = [
     title: 'WStrax => Strax',
     destination: 'Strax',
     erc20: '0xa3c22370de5f9544f0c4de126b1e46ceadf0a51b',
-    addressPrefix: 'X'
+    addressPrefix: 75
   },
   {
     ticker: 'WSTRAX',
@@ -65,7 +76,7 @@ export var tokenValues: TokenData[] = [
     title: 'WStrax => Strax',
     destination: 'Strax',
     erc20: '0xde09a7cb4c7631f243e5a5454cbb02404aea65e7',
-    addressPrefix: 'q'
+    addressPrefix: 120
 
   },
   {
@@ -74,7 +85,7 @@ export var tokenValues: TokenData[] = [
     title: 'Token 2',
     destination: 'Cirrus',
     erc20: '0xf197f5f8c406d269e2cc44aaf495fbc4eb519634',
-    addressPrefix: 't'
+    addressPrefix: 127
 
   },
   {
@@ -83,7 +94,7 @@ export var tokenValues: TokenData[] = [
     title: 'Token 3',
     destination: 'Cirrus',
     erc20: '0xa3c22370de5f9544f0c4de126b1e46ceadf0a51b',
-    addressPrefix: 't'
+    addressPrefix: 127
 
   },
   {
@@ -92,7 +103,7 @@ export var tokenValues: TokenData[] = [
     title: 'Token 4',
     destination: 'Cirrus',
     erc20: '0x5da5cfe7d4ce1cc0712ebc0bb58eff93817a6801',
-    addressPrefix: 't'
+    addressPrefix: 127
 
   },
   {
@@ -101,7 +112,7 @@ export var tokenValues: TokenData[] = [
     title: 'Token 5',
     destination: 'Cirrus',
     erc20: '0x14f768657135d3daafb45d242157055f1c9143f3',
-    addressPrefix: 't'
+    addressPrefix: 127
   }
 ];
 
