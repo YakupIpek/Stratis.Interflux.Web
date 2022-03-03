@@ -1,12 +1,13 @@
+import { ParsedEventType } from '@angular/compiler';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import MetaMaskOnboarding from '@metamask/onboarding';
+import { ethers, utils } from 'ethers';
+import { eventNames } from 'process';
 import { concatMap, delay, filter, fromEvent, interval, Subscription, take } from 'rxjs';
-import { AddressValidator } from '../services/address';
 import { Chain } from '../services/chain';
 import { TokenService } from '../services/token.service';
 import { Token } from '../services/tokens';
-import { Utils } from '../services/utils';
 
 @Component({
   selector: 'app-main',
@@ -17,7 +18,7 @@ export class MainComponent implements OnInit, OnDestroy {
   connected = false;
   connecting = false;
   account = '';
-  balance = '';
+  balance = '0';
   chain?: Chain;
   tokenOptions: { title: string; tokens: Token[]; }[] = [];
   token?: Token;
@@ -30,15 +31,13 @@ export class MainComponent implements OnInit, OnDestroy {
   registeryMessage?: string;
   alert?: { type: string, message: string };
   metaMaskInstalled: boolean;
-  web3: any;
   constructor(
-    private tokenService: TokenService,
-    private addressValidator:AddressValidator,
+    tokenService: TokenService,
+    private web3Provider: ethers.providers.Web3Provider,
     @Inject('BASE_URL') private baseUrl: string
   ) {
     this.tokens = tokenService.tokens;
     this.chains = tokenService.chains;
-    this.web3 = tokenService.web3;
     this.form = new FormGroup({
       tokenId: new FormControl(0, { validators: [] }),
       address: new FormControl(null, { validators: [Validators.required, this.validateAddress], asyncValidators: [this.validateAddressRegistery] }),
@@ -49,6 +48,7 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    console.log(utils);
     this.ethereum = (window as any).ethereum;
 
     if (!this.ethereum)
@@ -87,7 +87,7 @@ export class MainComponent implements OnInit, OnDestroy {
 
     if (!address)
       return {};
-    
+
     const valid = this.token.validateAddress(address);
 
     if (valid)
@@ -112,26 +112,20 @@ export class MainComponent implements OnInit, OnDestroy {
       this.form.disable();
       const newAddress = this.address.value as string;
       var data = this.token!.chain.registerAddressCall(newAddress);
-      const txid = await this.ethereum.request({
-        method: 'eth_sendTransaction',
-        params: [
+      const txid :string = await this.web3Provider.send('eth_sendTransaction',
+        [
           {
             from: this.account,
             to: this.token!.chain.kvStoreAddress,
-            value: this.web3.utils.fromDecimal(0),
+            value: '0x0',
             data: data
           }
         ]
-      });
+      );
 
       this.registeryMessage = 'The address is registering now. Please keep waiting...';
 
-      const tx = await interval(2000).pipe(
-        concatMap(async val => await this.web3.eth.getTransaction(txid)),
-        filter(x => x.blockNumber > 0),
-        take(1),
-        delay(1000)
-      ).toPromise();
+      await this.web3Provider.waitForTransaction(txid, 1);
 
       this.returnAddress = newAddress;
 
@@ -169,15 +163,12 @@ export class MainComponent implements OnInit, OnDestroy {
     this.balance = await this.token!.balance(this.account);
 
     this.amount.clearValidators();
-    this.amount.addValidators([Validators.required, Validators.min(Utils.toCRS(1)), Validators.max(this.toEther(this.balance))])
+    this.amount.addValidators([Validators.required, Validators.min(utils.formatUnits("1", 18) as any), Validators.max(utils.formatEther(this.balance) as any)])
 
     this.amount.updateValueAndValidity();
     this.address.updateValueAndValidity();
   }
 
-  toEther(amount: string) {
-    return this.web3.utils.fromWei(amount, "ether");
-  }
 
   updateTokenOptions() {
     this.tokenOptions = [
@@ -212,46 +203,42 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   async getChainId(): Promise<string> {
-    return await this.ethereum.request({ method: 'eth_chainId' });
+    return await this.web3Provider.send('eth_chainId', []);
   }
 
   async getAccounts(): Promise<string[]> {
-    return await this.ethereum.request({ method: 'eth_requestAccounts' });
+    return await this.web3Provider.send('eth_requestAccounts', []);
   }
 
   setFullBalance() {
-    this.form.get('amount')!.setValue(this.toEther(this.balance));
-  }
-
-  toWei(amount: number): number {
-    return this.web3.utils.toWei(amount, "ether");
+    this.form.get('amount')!.setValue(utils.formatEther(this.balance));
   }
 
   async transfer() {
     const token = this.token!;
     const chain = this.chain!;
 
-    const amount = this.toWei(this.amount.value.toString())
+    const amount = utils.parseEther(this.amount.value.toString()).toString();
     const callData = token.destination == 'Strax' ?
       token.burnCall(amount, this.address.value) :
       token.transferCall(chain.multisigAddress, amount);
 
     this.form.disable();
-    const txid = await this.ethereum.request({
-      method: 'eth_sendTransaction',
-      params: [
+
+    const txid = await this.web3Provider.send('eth_sendTransaction',
+      [
         {
           from: this.account,
           to: token.erc20,
-          value: this.web3.utils.fromDecimal(0),
+          value: '0x0',
           data: callData
         }
       ]
-    }).finally(() => this.form.enable());
-
+    ).finally(() => this.form.enable());
     this.amount.reset();
+
     var a = `<a target="_blank" href="${chain.txUrl(txid)}">transfer details</a>.`;
-    this.alert = { type: 'success', message: 'The Transfer submitted successfully. See your  ' + a }
+    this.alert = { type: 'success', message: 'The Transfer submitted successfully. See your  ' + a };
   }
 
   async addWallet() {
@@ -267,6 +254,10 @@ export class MainComponent implements OnInit, OnDestroy {
         },
       },
     });
+  }
+
+  toEther(amount: string) {
+    return utils.formatEther(amount);
   }
 
   install() {

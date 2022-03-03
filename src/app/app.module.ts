@@ -5,6 +5,7 @@ import { AppComponent } from './app.component';
 import { MainComponent } from './main/main.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ethers } from 'ethers';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,12 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     ReactiveFormsModule,
     FormsModule
   ],
-  providers: [],
+  providers: [
+    {
+      provide: ethers.providers.Web3Provider,
+      useValue : new ethers.providers.Web3Provider((window as any).ethereum)
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

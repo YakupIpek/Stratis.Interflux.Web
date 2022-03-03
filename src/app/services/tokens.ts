@@ -1,6 +1,6 @@
-import { Chain, CHAINS } from './chain';
+import { BigNumber, Contract, ethers } from 'ethers';
+import { Chain } from './chain';
 import { metadata } from './erc20-metadata';
-import { web3 } from './web3';
 declare let base58Check: any;
 
 export class Token {
@@ -11,28 +11,31 @@ export class Token {
   erc20: string;
   destination: 'Strax' | 'Cirrus';
   addressPrefix: number;
-  private contract: any;
+  contract: Contract;
 
-  constructor(data: TokenData, id: number) {
+  constructor(data: TokenData, chain:Chain, id: number, ether: ethers.providers.Web3Provider) {
     this.id = id;
     this.ticker = data.ticker;
-    this.chain = data.chain;
+    this.chain = chain;
     this.title = data.title;
     this.destination = data.destination;
     this.erc20 = data.erc20;
     this.addressPrefix = data.addressPrefix;
-    this.contract = new web3.eth.Contract(metadata, data.erc20);
+
+    this.contract = new Contract(data.erc20, metadata, ether);
+
   }
 
   async balance(address: string): Promise<string> {
-    return await this.contract.methods.balanceOf(address).call();
+    const balance = await this.contract['balanceOf'](address) as BigNumber;
+    return balance.toString();
   }
-  burnCall(amount: number, address: string): string {
-    return this.contract.methods.burn(amount, address).encodeABI();
+  burnCall(amount: string, address: string): string {
+    return this.contract.interface.encodeFunctionData('burn',[amount, address]);
   }
 
-  transferCall(to: string, amount: number): string {
-    return this.contract.methods.transfer(to, amount).encodeABI();
+  transferCall(to: string, amount: string): string {
+    return this.contract.interface.encodeFunctionData('transfer',[to, amount]);
   }
 
   /**Validates destination address for cirrus or strax networks */
@@ -48,23 +51,17 @@ export class Token {
 
 interface TokenData {
   ticker: string,
-  chain: Chain,
+  chain: 'Main' | 'Ropsten',
   title: string,
   destination: 'Strax' | 'Cirrus',
   erc20: string,
   addressPrefix: number;
 }
 
-var mainnet = CHAINS[0];
-var ropsten = CHAINS[1];
-
-//export class DestinationChain {
-//  constructor(addressPrefix)
-//}
-export var tokenValues: TokenData[] = [
+export const TOKENS: TokenData[] = [
   {
     ticker: 'WSTRAX',
-    chain: mainnet,
+    chain: 'Main',
     title: 'WStrax => Strax',
     destination: 'Strax',
     erc20: '0xa3c22370de5f9544f0c4de126b1e46ceadf0a51b',
@@ -72,7 +69,7 @@ export var tokenValues: TokenData[] = [
   },
   {
     ticker: 'WSTRAX',
-    chain: ropsten,
+    chain: 'Ropsten',
     title: 'WStrax => Strax',
     destination: 'Strax',
     erc20: '0xde09a7cb4c7631f243e5a5454cbb02404aea65e7',
@@ -81,7 +78,7 @@ export var tokenValues: TokenData[] = [
   },
   {
     ticker: 'TST-2',
-    chain: ropsten,
+    chain: 'Ropsten',
     title: 'Token 2',
     destination: 'Cirrus',
     erc20: '0xf197f5f8c406d269e2cc44aaf495fbc4eb519634',
@@ -90,7 +87,7 @@ export var tokenValues: TokenData[] = [
   },
   {
     ticker: 'TST-3',
-    chain: ropsten,
+    chain: 'Ropsten',
     title: 'Token 3',
     destination: 'Cirrus',
     erc20: '0xa3c22370de5f9544f0c4de126b1e46ceadf0a51b',
@@ -99,7 +96,7 @@ export var tokenValues: TokenData[] = [
   },
   {
     ticker: 'TST-4',
-    chain: ropsten,
+    chain: 'Ropsten',
     title: 'Token 4',
     destination: 'Cirrus',
     erc20: '0x5da5cfe7d4ce1cc0712ebc0bb58eff93817a6801',
@@ -108,12 +105,10 @@ export var tokenValues: TokenData[] = [
   },
   {
     ticker: 'TST-5',
-    chain: ropsten,
+    chain: 'Ropsten',
     title: 'Token 5',
     destination: 'Cirrus',
     erc20: '0x14f768657135d3daafb45d242157055f1c9143f3',
     addressPrefix: 127
   }
 ];
-
-export const TOKENS = tokenValues.map((data, i) => new Token(data, ++i));

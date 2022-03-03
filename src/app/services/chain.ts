@@ -1,5 +1,5 @@
+import { Contract, ethers } from 'ethers';
 import { metadata } from './key-value-metadata'
-import { web3 } from './web3';
 
 export interface ChainData {
   id: string,
@@ -18,8 +18,9 @@ export class Chain {
   multisigAddress: string;
   kvStoreAddress: string;
   txUrlBase: string;
-  contract: any;
-  constructor(data: ChainData) {
+  contract: Contract;
+
+  constructor(data: ChainData, private web3Provider: ethers.providers.Web3Provider) {
 
     this.id = data.id;
     this.name = data.name;
@@ -27,11 +28,11 @@ export class Chain {
     this.multisigAddress = data.multisigAddress;
     this.txUrlBase = data.txUrlBase;
 
-    this.contract = new web3.eth.Contract(metadata, data.kvStoreAddress);
+    this.contract = new Contract(data.kvStoreAddress, metadata, web3Provider);
   }
 
   async getAddress(account: string) {
-    return await this.contract.methods.get(account, 'CirrusDestinationAddress').call() as Promise<string>;
+    return await this.contract['get'](account, 'CirrusDestinationAddress') as Promise<string>;
 
   }
 
@@ -40,11 +41,11 @@ export class Chain {
   }
 
   registerAddressCall(crsAddress: string): string {
-    return this.contract.methods.set('CirrusDestinationAddress', crsAddress).encodeABI();
+    return this.contract.interface.encodeFunctionData('set', ['CirrusDestinationAddress', crsAddress]);
   }
 }
 
-let items: ChainData[] = [
+export const CHAINS: ChainData[] = [
   {
     id: '0x1',
     name: 'Main',
@@ -59,7 +60,5 @@ let items: ChainData[] = [
     kvStoreAddress: '0xa61AB12Eb1964C5b478283d3233270800674aCe0',//Multi-sig address contract
     txUrlBase: 'https://ropsten.etherscan.io/tx/',
   }
-]
-
-export var CHAINS = items.map(data => new Chain(data));
+];
 
