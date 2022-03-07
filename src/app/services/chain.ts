@@ -49,8 +49,8 @@ export const CHAINS: ChainData[] = [
   {
     id: '0x1',
     name: 'Main',
-    kvStoreAddress: '',
-    multisigAddress: '',
+    kvStoreAddress: '0x479b5ed883e49d31a7dcee3a3c872efde4dcfee9',
+    multisigAddress: '0x14F768657135D3DaAFB45D242157055f1C9143f3',
     txUrlBase: 'https://etherscan.io/tx/'
   },
   {
