@@ -5,7 +5,7 @@ import { ethers, utils } from 'ethers';
 import { fromEvent, Subscription } from 'rxjs';
 import { Chain } from '../services/chain';
 import { TokenService } from '../services/token.service';
-import { Token, TOKENS } from '../services/tokens';
+import { Token } from '../services/tokens';
 
 @Component({
   selector: 'app-main',
@@ -252,7 +252,10 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   toEther(amount: string) {
-    return utils.formatEther(amount);
+    if (this.token.decimals == 18)
+      return utils.formatEther(amount);
+    else
+      return utils.parseEther(amount, this.token.decimals);
   }
 
   install() {
