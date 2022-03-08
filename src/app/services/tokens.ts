@@ -73,7 +73,7 @@ export const TOKENS: TokenData[] = [
     title: 'Wrapped ETH',
     destination: 'Cirrus',
     erc20: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-    addressPrefix: 127
+    addressPrefix: 28
   },
   {
     ticker: 'WBTC',
@@ -81,7 +81,7 @@ export const TOKENS: TokenData[] = [
     title: 'Wrapped BTC',
     destination: 'Cirrus',
     erc20: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
-    addressPrefix: 127
+    addressPrefix: 28
   },
   {
     ticker: 'USDC',
@@ -89,7 +89,7 @@ export const TOKENS: TokenData[] = [
     title: 'USDC',
     destination: 'Cirrus',
     erc20: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-    addressPrefix: 127
+    addressPrefix: 28
   },
   {
     ticker: 'USDT',
@@ -97,7 +97,7 @@ export const TOKENS: TokenData[] = [
     title: 'USDT',
     destination: 'Cirrus',
     erc20: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-    addressPrefix: 127
+    addressPrefix: 28
   },
   {
     ticker: 'LINK',
@@ -105,7 +105,7 @@ export const TOKENS: TokenData[] = [
     title: 'LINK',
     destination: 'Cirrus',
     erc20: '0x514910771AF9Ca656af840dff83E8264EcF986CA',
-    addressPrefix: 127
+    addressPrefix: 28
   },
   {
     ticker: 'SHIB',
@@ -113,7 +113,7 @@ export const TOKENS: TokenData[] = [
     title: 'SHIB',
     destination: 'Cirrus',
     erc20: '0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE',
-    addressPrefix: 127
+    addressPrefix: 28
   },
 
   //
