@@ -224,7 +224,7 @@ export class MainComponent implements OnInit, OnDestroy {
     if (token.decimals == 18)
       amount = utils.parseEther(this.amount.value.toString()).toString();
     else
-      amount = utils.formatUnits(this.amount.value.toString(), token.decimals).toString();
+      amount = utils.bigNumberify(this.amount.value).toString();
 
     const callData = token.destination == 'Strax' ?
       token.burnCall(amount, this.address.value) :
