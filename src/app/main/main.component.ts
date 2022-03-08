@@ -220,7 +220,11 @@ export class MainComponent implements OnInit, OnDestroy {
     const token = this.token!;
     const chain = this.chain!;
 
-    const amount = utils.formatUnits(this.amount.value.toString(), this.token?.decimals);
+    var amount = "";
+    if (token.decimals == 18)
+      amount = utils.parseEther(this.amount.value.toString()).toString();
+    else
+      amount = utils.formatUnits(this.amount.value.toString(), token.decimals).toString();
 
     const callData = token.destination == 'Strax' ?
       token.burnCall(amount, this.address.value) :
