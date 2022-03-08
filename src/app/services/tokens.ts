@@ -12,6 +12,7 @@ export class Token {
   destination: 'Strax' | 'Cirrus';
   addressPrefix: number;
   contract: Contract;
+  decimals: number;
 
   constructor(data: TokenData, chain: Chain, id: number, ether: ethers.providers.Web3Provider) {
     this.id = id;
@@ -21,9 +22,9 @@ export class Token {
     this.destination = data.destination;
     this.erc20 = data.erc20;
     this.addressPrefix = data.addressPrefix;
+    this.decimals = data.decimals;
 
     this.contract = new Contract(data.erc20, metadata, ether);
-
   }
 
   async balance(address: string): Promise<string> {
@@ -56,6 +57,7 @@ interface TokenData {
   destination: 'Strax' | 'Cirrus',
   erc20: string,
   addressPrefix: number;
+  decimals: number;
 }
 
 export const TOKENS: TokenData[] = [
@@ -65,7 +67,8 @@ export const TOKENS: TokenData[] = [
     title: 'WStrax => Strax',
     destination: 'Strax',
     erc20: '0xa3c22370de5f9544f0c4de126b1e46ceadf0a51b',
-    addressPrefix: 75
+    addressPrefix: 75,
+    decimals: 18
   },
   {
     ticker: 'WETH',
@@ -73,7 +76,8 @@ export const TOKENS: TokenData[] = [
     title: 'Wrapped ETH',
     destination: 'Cirrus',
     erc20: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
-    addressPrefix: 28
+    addressPrefix: 28,
+    decimals: 18
   },
   {
     ticker: 'WBTC',
@@ -81,7 +85,8 @@ export const TOKENS: TokenData[] = [
     title: 'Wrapped BTC',
     destination: 'Cirrus',
     erc20: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
-    addressPrefix: 28
+    addressPrefix: 28,
+    decimals: 8
   },
   {
     ticker: 'USDC',
@@ -89,7 +94,8 @@ export const TOKENS: TokenData[] = [
     title: 'USDC',
     destination: 'Cirrus',
     erc20: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
-    addressPrefix: 28
+    addressPrefix: 28,
+    decimals: 6
   },
   {
     ticker: 'USDT',
@@ -97,7 +103,8 @@ export const TOKENS: TokenData[] = [
     title: 'USDT',
     destination: 'Cirrus',
     erc20: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-    addressPrefix: 28
+    addressPrefix: 28,
+    decimals: 6
   },
   {
     ticker: 'LINK',
@@ -105,7 +112,8 @@ export const TOKENS: TokenData[] = [
     title: 'LINK',
     destination: 'Cirrus',
     erc20: '0x514910771AF9Ca656af840dff83E8264EcF986CA',
-    addressPrefix: 28
+    addressPrefix: 28,
+    decimals: 18
   },
   {
     ticker: 'SHIB',
@@ -113,7 +121,8 @@ export const TOKENS: TokenData[] = [
     title: 'SHIB',
     destination: 'Cirrus',
     erc20: '0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE',
-    addressPrefix: 28
+    addressPrefix: 28,
+    decimals: 18
   },
 
   //
@@ -123,7 +132,8 @@ export const TOKENS: TokenData[] = [
     title: 'WStrax => Strax',
     destination: 'Strax',
     erc20: '0xde09a7cb4c7631f243e5a5454cbb02404aea65e7',
-    addressPrefix: 120
+    addressPrefix: 120,
+    decimals: 18
   },
   {
     ticker: 'TST-2',
@@ -131,7 +141,8 @@ export const TOKENS: TokenData[] = [
     title: 'Token 2',
     destination: 'Cirrus',
     erc20: '0xf197f5f8c406d269e2cc44aaf495fbc4eb519634',
-    addressPrefix: 127
+    addressPrefix: 127,
+    decimals: 18
   },
   {
     ticker: 'TST-3',
@@ -139,7 +150,8 @@ export const TOKENS: TokenData[] = [
     title: 'Token 3',
     destination: 'Cirrus',
     erc20: '0xa3c22370de5f9544f0c4de126b1e46ceadf0a51b',
-    addressPrefix: 127
+    addressPrefix: 127,
+    decimals: 18
   },
   {
     ticker: 'TST-4',
@@ -147,7 +159,8 @@ export const TOKENS: TokenData[] = [
     title: 'Token 4',
     destination: 'Cirrus',
     erc20: '0x5da5cfe7d4ce1cc0712ebc0bb58eff93817a6801',
-    addressPrefix: 127
+    addressPrefix: 127,
+    decimals: 18
   },
   {
     ticker: 'TST-5',
@@ -155,6 +168,7 @@ export const TOKENS: TokenData[] = [
     title: 'Token 5',
     destination: 'Cirrus',
     erc20: '0x14f768657135d3daafb45d242157055f1c9143f3',
-    addressPrefix: 127
+    addressPrefix: 127,
+    decimals: 18
   }
 ];

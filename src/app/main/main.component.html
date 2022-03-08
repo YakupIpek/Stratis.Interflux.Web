@@ -8,7 +8,8 @@
       <img src="../../assets/metamask-fox.svg" class="metamask-logo" />
       Click here to install MetaMask!
     </button>
-    <button *ngIf="metaMaskInstalled" class="connect btn btn-lg w-100" type="button" (click)="connect()" [class]="connected? 'btn-success': 'btn-primary'" [disabled]="connected || connecting">
+    <button *ngIf="metaMaskInstalled" class="connect btn btn-lg w-100" type="button" (click)="connect()"
+      [class]="connected? 'btn-success': 'btn-primary'" [disabled]="connected || connecting">
       <img src="../../assets/metamask-fox.svg" class="metamask-logo">
       {{ connected ? 'Connected to MetaMask!': 'Connect to MetaMask' }}
     </button>
@@ -34,7 +35,8 @@
         <div [ngbCollapse]="!token">
           <div class="mb-3">
             <div class="input-group address">
-              <input type="text" class="form-control" formControlName="address" placeholder="{{ token?.destination }} Address">
+              <input type="text" class="form-control" formControlName="address"
+                placeholder="{{ token?.destination }} Address">
               <span class="input-group-text">To </span>
               <div *ngIf="address.invalid && (address.dirty || address.touched)" class="invalid-feedback">
                 <div *ngIf="address.errors?.['required']">Address is required.</div>
@@ -59,21 +61,22 @@
                 <div *ngIf="amount.errors?.['min']">Amount must be higher than zero.</div>
                 <div *ngIf="amount.errors?.['max']">Amount must be lower than your balance.</div>
               </div>
-              <a href="" [routerLink]="" class="balance fw-bold justify-content-end text-decoration-none form-text" placement="right" ngbTooltip="Click here to paste" (click)="setFullBalance()">
+              <a href="" [routerLink]="" class="balance fw-bold justify-content-end text-decoration-none form-text"
+                placement="right" ngbTooltip="Click here to paste" (click)="setFullBalance()">
                 {{ toEther(balance) | number:'1.2-2' }} {{ token?.ticker }}
               </a>
             </div>
           </div>
-          <button type="submit" class="btn btn-primary btn-lg w-100 mb-3" [disabled]="form.invalid || form.disabled" (click)="transfer()">
+          <button type="submit" class="btn btn-primary btn-lg w-100 mb-3" [disabled]="form.invalid || form.disabled"
+            (click)="transfer()">
             <i class="bi bi-wallet-fill"></i> Transfer {{ token?.ticker }}
           </button>
           <div class="add-wallet">
-            <a href="" [routerLink]="[]" (click)="addWallet()" class="small">Add {{ token?.ticker }} wallet to MetaMask</a>
+            <a href="" [routerLink]="[]" (click)="addWallet()" class="small">Add {{ token?.ticker }} wallet
+              to MetaMask</a>
           </div>
         </div>
-
       </form>
     </div>
   </div>
 </div>
-

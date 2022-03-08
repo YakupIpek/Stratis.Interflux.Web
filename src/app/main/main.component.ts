@@ -1,13 +1,11 @@
-import { ParsedEventType } from '@angular/compiler';
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import MetaMaskOnboarding from '@metamask/onboarding';
 import { ethers, utils } from 'ethers';
-import { eventNames } from 'process';
-import { concatMap, delay, filter, fromEvent, interval, Subscription, take } from 'rxjs';
+import { fromEvent, Subscription } from 'rxjs';
 import { Chain } from '../services/chain';
 import { TokenService } from '../services/token.service';
-import { Token } from '../services/tokens';
+import { Token, TOKENS } from '../services/tokens';
 
 @Component({
   selector: 'app-main',
@@ -112,7 +110,7 @@ export class MainComponent implements OnInit, OnDestroy {
       this.form.disable();
       const newAddress = this.address.value as string;
       var data = this.token!.chain.registerAddressCall(newAddress);
-      const txid :string = await this.web3Provider.send('eth_sendTransaction',
+      const txid: string = await this.web3Provider.send('eth_sendTransaction',
         [
           {
             from: this.account,
@@ -135,7 +133,6 @@ export class MainComponent implements OnInit, OnDestroy {
 
     this.registeryMessage = undefined
     this.form.enable();
-
   }
 
   updateAccount(accounts: string[]) {
@@ -168,7 +165,6 @@ export class MainComponent implements OnInit, OnDestroy {
     this.amount.updateValueAndValidity();
     this.address.updateValueAndValidity();
   }
-
 
   updateTokenOptions() {
     this.tokenOptions = [
@@ -249,8 +245,7 @@ export class MainComponent implements OnInit, OnDestroy {
         options: {
           address: this.token!.erc20,
           symbol: this.token!.ticker,
-          image: `${this.baseUrl}/assets/stratis-logo.svg`,
-          decimals: 18,
+          decimals: this.token!.decimals,
         },
       },
     });
