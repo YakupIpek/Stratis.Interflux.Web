@@ -1,7 +1,7 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import MetaMaskOnboarding from '@metamask/onboarding';
-import { ethers, utils } from 'ethers';
+import { ethers, utils, BigInteger } from 'ethers';
 import { fromEvent, Subscription } from 'rxjs';
 import { Chain } from '../services/chain';
 import { TokenService } from '../services/token.service';
@@ -224,7 +224,7 @@ export class MainComponent implements OnInit, OnDestroy {
     if (token.decimals == 18)
       amount = utils.parseEther(this.amount.value.toString()).toString();
     else
-      amount = utils.bigNumberify(this.amount.value).toString();
+      amount = BigInt(this.amount.value * Math.pow(10, token.decimals)).toString();
 
     const callData = token.destination == 'Strax' ?
       token.burnCall(amount, this.address.value) :
