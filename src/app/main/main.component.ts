@@ -1,7 +1,7 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import MetaMaskOnboarding from '@metamask/onboarding';
-import { ethers, utils, BigInteger } from 'ethers';
+import { ethers, utils } from 'ethers';
 import { fromEvent, Subscription } from 'rxjs';
 import { Chain } from '../services/chain';
 import { TokenService } from '../services/token.service';
