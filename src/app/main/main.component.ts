@@ -160,7 +160,10 @@ export class MainComponent implements OnInit, OnDestroy {
     this.balance = await this.token!.balance(this.account);
 
     this.amount.clearValidators();
-    this.amount.addValidators([Validators.required, Validators.min(utils.formatUnits("1", 18) as any), Validators.max(utils.formatEther(this.balance) as any)])
+    if (this.token?.decimals == 18)
+      this.amount.addValidators([Validators.required, Validators.min(utils.formatUnits("1", 18) as any), Validators.max(utils.formatEther(this.balance) as any)])
+    else
+      this.amount.addValidators([Validators.required, Validators.min(utils.formatUnits("1", 18) as any), Validators.max(utils.formatUnits(this.balance, this.token?.decimals) as any)])
 
     this.amount.updateValueAndValidity();
     this.address.updateValueAndValidity();
@@ -207,7 +210,10 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   setFullBalance() {
-    this.form.get('amount')!.setValue(utils.formatEther(this.balance));
+    if (this.token?.decimals == 18)
+      this.form.get('amount')!.setValue(utils.formatEther(this.balance));
+    else
+      this.form.get('amount')!.setValue(utils.formatUnits(this.balance, this.token?.decimals));
   }
 
   async transfer() {
@@ -252,10 +258,10 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   toEther(amount: string) {
-    if (this.token.decimals == 18)
+    if (this.token?.decimals == 18)
       return utils.formatEther(amount);
     else
-      return utils.parseEther(amount, this.token.decimals);
+      return utils.formatUnits(amount, this.token?.decimals);
   }
 
   install() {
