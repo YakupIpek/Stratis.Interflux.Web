@@ -258,10 +258,7 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   toEther(amount: string) {
-    if (this.token?.decimals == 18)
-      return utils.formatEther(amount);
-    else
-      return utils.formatUnits(amount, this.token?.decimals);
+    return utils.formatUnits(amount, this.token?.decimals);
   }
 
   install() {
