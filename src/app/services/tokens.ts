@@ -136,39 +136,30 @@ export const TOKENS: TokenData[] = [
     decimals: 18
   },
   {
-    ticker: 'TST-2',
+    ticker: 'TSTX',
     chain: 'Ropsten',
-    title: 'Token 2',
+    title: 'Test Token',
     destination: 'Cirrus',
-    erc20: '0xf197f5f8c406d269e2cc44aaf495fbc4eb519634',
+    erc20: '0xf5dab0f35378ea5fc69149d0f20ba0c16b170a3d',
     addressPrefix: 127,
     decimals: 18
   },
   {
-    ticker: 'TST-3',
+    ticker: 'TSTY',
     chain: 'Ropsten',
-    title: 'Token 3',
+    title: 'Test Token 2',
     destination: 'Cirrus',
-    erc20: '0xa3c22370de5f9544f0c4de126b1e46ceadf0a51b',
+    erc20: '0x2b3b0bd8219ffe0c22ffcdefbc81b7efa5c8d9ba',
     addressPrefix: 127,
-    decimals: 18
+    decimals: 8
   },
   {
-    ticker: 'TST-4',
+    ticker: 'TSTZ',
     chain: 'Ropsten',
-    title: 'Token 4',
+    title: 'Test Token 3',
     destination: 'Cirrus',
-    erc20: '0x5da5cfe7d4ce1cc0712ebc0bb58eff93817a6801',
+    erc20: '0x4cb3e0b719a7707c0148e21585d8011213de6708',
     addressPrefix: 127,
-    decimals: 18
+    decimals: 6
   },
-  {
-    ticker: 'TST-5',
-    chain: 'Ropsten',
-    title: 'Token 5',
-    destination: 'Cirrus',
-    erc20: '0x14f768657135d3daafb45d242157055f1c9143f3',
-    addressPrefix: 127,
-    decimals: 18
-  }
 ];
