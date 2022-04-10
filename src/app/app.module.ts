@@ -22,7 +22,11 @@ import { ethers } from 'ethers';
   providers: [
     {
       provide: ethers.providers.Web3Provider,
-      useValue : new ethers.providers.Web3Provider((window as any).ethereum)
+      useFactory: () => {
+        return (window as any).ethereum
+          ? new ethers.providers.Web3Provider((window as any).ethereum)
+          : undefined
+      }
     }
   ],
   bootstrap: [AppComponent]
