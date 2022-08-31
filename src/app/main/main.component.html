@@ -36,11 +36,11 @@
           <div class="mb-3">
             <div class="input-group address">
               <input type="text" class="form-control" formControlName="address"
-                placeholder="{{ token?.destination }} Address">
+                placeholder="{{ token?.destination == destinations.Strax ? 'Strax' : 'Cirrus' }} Address">
               <span class="input-group-text">To </span>
               <div *ngIf="address.invalid && (address.dirty || address.touched)" class="invalid-feedback">
                 <div *ngIf="address.errors?.['required']">Address is required.</div>
-                <div *ngIf="address.errors?.['address']">Address is not valid {{ token?.destination }} address.</div>
+                <div *ngIf="address.errors?.['address']">Address is not a valid {{ token?.destination == destinations.Strax ? 'Strax' : 'Cirrus' }} address.</div>
                 <div *ngIf="address.errors?.['addressRegistery']">
                   Address is not registered. Please click here to
                   <a [routerLink]="" (click)="registerAddress()" class="link-primary">Register</a>
@@ -52,7 +52,12 @@
             </div>
           </div>
 
-          <div class="input-group mb-3">
+          <select *ngIf="token?.destination == destinations.CirrusNft" class="form-select mb-3" formControlName="tokenIdentifier">
+            <option [ngValue]="-1">Please Select NFT</option>
+            <option *ngFor="let tid of nfts" [ngValue]="tid">{{ tid }}</option>
+          </select>
+
+          <div *ngIf="token?.destination != destinations.CirrusNft" class="input-group mb-3">
             <input type="number" class="form-control" formControlName="amount" placeholder="Amount">
             <span class="input-group-text">{{ token?.ticker }}</span>
             <div class="invalid-feedback d-flex justify-content-between">

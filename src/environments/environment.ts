@@ -2,8 +2,24 @@
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
-export const environment = {
-  production: false
+import { ChainName } from 'src/app/services/chain';
+
+export interface Environment {
+  production: boolean;
+  apiEndpoint: string;
+  wstraxaddress: string;
+  wstraxaddressprefix: number;
+  chain: ChainName;
+  alchemyApiKey: string;
+}
+
+export const environment: Environment = {
+  production: false,
+  apiEndpoint: 'https://localhost:44356',
+  wstraxaddress: '0xde09a7cb4c7631f243e5a5454cbb02404aea65e7',
+  wstraxaddressprefix: 120,
+  chain: ChainName.Ropsten,
+  alchemyApiKey: 'demo'
 };
 
 /*
