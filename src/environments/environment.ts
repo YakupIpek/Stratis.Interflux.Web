@@ -15,7 +15,7 @@ export interface Environment {
 
 export const environment: Environment = {
   production: false,
-  apiEndpoint: 'https://localhost:44356',
+  apiEndpoint: 'https://cirrushelperapi-testnet.azurewebsites.net',
   wstraxaddress: '0xde09a7cb4c7631f243e5a5454cbb02404aea65e7',
   wstraxaddressprefix: 120,
   chain: ChainName.Ropsten,
