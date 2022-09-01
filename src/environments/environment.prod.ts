@@ -1,4 +1,4 @@
-import { Environment } from './environment';
+import { Environment } from 'src/app/Environment';
 import { ChainName } from 'src/app/services/chain';
 
 export const environment: Environment = {
