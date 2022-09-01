@@ -37,33 +37,39 @@ export class TokenService extends RestApi {
       this.tokens.push(new Token(data, this.chains.find(c=>c.name.valueOf() == data.chain.valueOf())!, 0, web3Provider))
 
       res.supportedTokenContractAddresses.forEach((a, i) => {
-        let data: TokenData = {
-          ticker: a.tokenName,
-          chain: environment.chain,
-          title: a.title + ' => Cirrus',
-          destination: Destination.Cirrus,
-          erc20: a.nativeChainAddress,
-          addressPrefix: a.addressPrefix,
-          decimals: a.decimals
-        };
+        if (a.nativeChainAddress != undefined)
+        {
+          let data: TokenData = {
+            ticker: a.tokenName,
+            chain: environment.chain,
+            title: a.title + ' => Cirrus',
+            destination: Destination.Cirrus,
+            erc20: a.nativeChainAddress,
+            addressPrefix: a.addressPrefix,
+            decimals: a.decimals
+          };
 
-        this.tokens.push(new Token(data, this.chains.find(c=>c.name.valueOf() == data.chain.valueOf())!, (++i + 1), web3Provider))
+          this.tokens.push(new Token(data, this.chains.find(c=>c.name.valueOf() == data.chain.valueOf())!, (++i + 1), web3Provider))
+        }
       });
 
       let n:number = this.tokens.length;
 
       res.supportedNftContractAddresses.forEach((a, i) => {
-        let data: TokenData = {
-          ticker: a.tokenName,
-          chain: environment.chain,
-          title: a.title + ' => Cirrus',
-          destination: Destination.CirrusNft,
-          erc20: a.nativeChainAddress,
-          addressPrefix: a.addressPrefix,
-          decimals: 0
-        };
+        if (a.nativeChainAddress != undefined)
+        {
+          let data: TokenData = {
+            ticker: a.tokenName,
+            chain: environment.chain,
+            title: a.title + ' => Cirrus',
+            destination: Destination.CirrusNft,
+            erc20: a.nativeChainAddress,
+            addressPrefix: a.addressPrefix,
+            decimals: 0
+          };
 
-        this.tokens.push(new Token(data, this.chains.find(c=>c.name.valueOf() == data.chain.valueOf())!, (++i + n), web3Provider))
+          this.tokens.push(new Token(data, this.chains.find(c=>c.name.valueOf() == data.chain.valueOf())!, (++i + n), web3Provider))
+        }
       });
     });
   }
