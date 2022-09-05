@@ -178,7 +178,7 @@ export class MainComponent implements OnInit, OnDestroy {
       this.nfts = [];
 
       for (const nft of nftsForOwner.ownedNfts) {
-        if (nft.contract.address != this.token.contract.address)
+        if (nft.contract.address.toUpperCase() != this.token.contract.address.toUpperCase())
           continue;
 
         this.nfts.push(nft.tokenId)
