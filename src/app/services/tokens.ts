@@ -46,7 +46,7 @@ export class Token {
 
   /* Transfer method used only for ERC721-compatible tokens */
   nftTransferCall(from: string, to: string, tokenIdentifier: number): string {
-    return this.contract.interface.encodeFunctionData('safeTransferFrom', [from, to, tokenIdentifier]);
+    return this.contract.interface.encodeFunctionData('transferFrom', [from, to, tokenIdentifier]);
   }
 
   /* Transfer method used only for ERC20-compatible tokens */
