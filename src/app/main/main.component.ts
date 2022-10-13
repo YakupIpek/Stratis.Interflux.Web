@@ -211,9 +211,6 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   setFullBalance() {
-    if (this.token?.decimals == 18)
-      this.form.get('amount')!.setValue(utils.formatEther(this.balance));
-    else
       this.form.get('amount')!.setValue(utils.formatUnits(this.balance, this.token?.decimals));
   }
 
@@ -221,7 +218,7 @@ export class MainComponent implements OnInit, OnDestroy {
     const token = this.token!;
     const chain = this.chain!;
 
-    var amount = utils.parseUnits(this.amount.value, token.decimals).toString();
+    var amount = utils.parseUnits(this.amount.value.toString(), token.decimals).toString();
 
     const callData = token.destination == 'Strax' ?
       token.burnCall(amount, this.address.value) :
