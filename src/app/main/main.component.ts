@@ -211,9 +211,6 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   setFullBalance() {
-    if (this.token?.decimals == 18)
-      this.form.get('amount')!.setValue(utils.formatEther(this.balance));
-    else
       this.form.get('amount')!.setValue(utils.formatUnits(this.balance, this.token?.decimals));
   }
 
