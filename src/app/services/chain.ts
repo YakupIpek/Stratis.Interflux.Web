@@ -54,7 +54,7 @@ export const CHAINS: ChainData[] = [
     txUrlBase: 'https://etherscan.io/tx/'
   },
   {
-    id: '0x3',
+    id: '0xaa36a7',
     name: 'Sepolia',
     multisigAddress: '0x14F768657135D3DaAFB45D242157055f1C9143f3',
     kvStoreAddress: '0x5Da5cFe7D4Ce1cC0712eBC0BB58EFF93817A6801',//Multi-sig address contract
