@@ -52,7 +52,7 @@ export class Token {
 
 interface TokenData {
   ticker: string,
-  chain: 'Main' | 'Ropsten',
+  chain: 'Main' | 'Sepolia',
   title: string,
   destination: 'Strax' | 'Cirrus',
   erc20: string,
@@ -128,37 +128,37 @@ export const TOKENS: TokenData[] = [
   //
   {
     ticker: 'WSTRAX',
-    chain: 'Ropsten',
+    chain: 'Sepolia',
     title: 'WStrax => Strax',
     destination: 'Strax',
-    erc20: '0xde09a7cb4c7631f243e5a5454cbb02404aea65e7',
+    erc20: '0xf128715b5AF562b2B45BBc8ede79973Ff48C3815',
     addressPrefix: 120,
     decimals: 18
   },
   {
-    ticker: 'TSTX',
-    chain: 'Ropsten',
-    title: 'Test Token',
+    ticker: 'TSZ1',
+    chain: 'Sepolia',
+    title: 'Test Token Z1',
     destination: 'Cirrus',
-    erc20: '0xf5dab0f35378ea5fc69149d0f20ba0c16b170a3d',
+    erc20: '0xE4a444CB3222fd8E9518dB8F70A33aaDb9a1a358',
     addressPrefix: 127,
     decimals: 18
   },
   {
-    ticker: 'TSTY',
-    chain: 'Ropsten',
-    title: 'Test Token 2',
+    ticker: 'TSZ2',
+    chain: 'Sepolia',
+    title: 'Test Token Z2',
     destination: 'Cirrus',
-    erc20: '0x2b3b0bd8219ffe0c22ffcdefbc81b7efa5c8d9ba',
+    erc20: '0xF197f5f8c406d269E2cc44Aaf495fBC4EB519634',
     addressPrefix: 127,
     decimals: 8
   },
   {
-    ticker: 'TSTZ',
-    chain: 'Ropsten',
-    title: 'Test Token 3',
+    ticker: 'TSZ3',
+    chain: 'Sepolia',
+    title: 'Test Token Z3',
     destination: 'Cirrus',
-    erc20: '0x4cb3e0b719a7707c0148e21585d8011213de6708',
+    erc20: '0xa3C22370de5f9544f0c4De126b1e46cEadF0A51B',
     addressPrefix: 127,
     decimals: 6
   },
