@@ -3,7 +3,7 @@ import { metadata } from './key-value-metadata'
 
 export enum ChainName {
   Main = 'Main',
-  Ropsten = 'Ropsten'
+  Sepolia = 'Sepolia'
 }
 
 export interface ChainData {
@@ -58,10 +58,10 @@ export const CHAINS: ChainData[] = [
     txUrlBase: 'https://etherscan.io/tx/'
   },
   {
-    id: '0x3',
-    name: ChainName.Ropsten,
-    multisigAddress: '0xd2390da742872294BE05dc7359D7249d7C79460E',
-    kvStoreAddress: '0xa61AB12Eb1964C5b478283d3233270800674aCe0',//Multi-sig address contract
-    txUrlBase: 'https://ropsten.etherscan.io/tx/',
+    id: '0xaa36a7',
+    name: ChainName.Sepolia,
+    multisigAddress: '0x14F768657135D3DaAFB45D242157055f1C9143f3',
+    kvStoreAddress: '0x5Da5cFe7D4Ce1cC0712eBC0BB58EFF93817A6801',//Multi-sig address contract
+    txUrlBase: 'https://sepolia.etherscan.io/tx/',
   }
 ];

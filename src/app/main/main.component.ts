@@ -11,7 +11,7 @@ import { environment } from 'src/environments/environment';
 
 const alchemySettings = {
   apiKey: environment.alchemyApiKey,
-  network: environment.chain == ChainName.Ropsten ? Network.ETH_ROPSTEN : Network.ETH_MAINNET
+  network: environment.chain == ChainName.Sepolia ? Network.ETH_SEPOLIA : Network.ETH_MAINNET
 };
 
 const alchemy = new Alchemy(alchemySettings);
@@ -202,10 +202,11 @@ export class MainComponent implements OnInit, OnDestroy {
     {
       this.balance = await this.token!.balance(this.account);
 
-      if (this.token?.decimals == 18)
-        this.amount.addValidators([Validators.required, Validators.min(utils.formatUnits("1", 18) as any), Validators.max(utils.formatEther(this.balance) as any)])
-      else
-        this.amount.addValidators([Validators.required, Validators.min(utils.formatUnits("1", 18) as any), Validators.max(utils.formatUnits(this.balance, this.token?.decimals) as any)])
+      this.amount.addValidators([
+        Validators.required,
+        Validators.min(utils.formatUnits("1", this.token!.decimals) as any),
+        Validators.max(utils.formatUnits(this.balance, this.token!.decimals) as any)
+      ]);
     }
     else
     {
@@ -265,9 +266,6 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   setFullBalance() {
-    if (this.token?.decimals == 18)
-      this.form.get('amount')!.setValue(utils.formatEther(this.balance));
-    else
       this.form.get('amount')!.setValue(utils.formatUnits(this.balance, this.token?.decimals));
   }
 
@@ -279,11 +277,7 @@ export class MainComponent implements OnInit, OnDestroy {
 
     if (token.destination != Destination.CirrusNft)
     {
-      var amount = "";
-      if (token.decimals == 18)
-        amount = utils.parseEther(this.amount.value.toString()).toString();
-      else
-        amount = BigInt(this.amount.value * Math.pow(10, token.decimals)).toString();
+      var amount = utils.parseUnits(this.amount.value.toString(), token.decimals).toString();
 
       callData = token.destination == Destination.Strax ?
         token.burnCall(amount, this.address.value) :
