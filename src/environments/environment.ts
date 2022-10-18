@@ -11,7 +11,7 @@ export const environment: Environment = {
   wstraxaddress: '0xf128715b5AF562b2B45BBc8ede79973Ff48C3815',
   wstraxaddressprefix: 120,
   chain: ChainName.Sepolia,
-  moralisApiKey: 'x'
+  moralisApiKey: 'd0Kec71K0Si2RQo1v9Zm2PX5Fzr7HQMLEm1Ex0vUiLN6hAKUZknx2TjQXdgOZkg2'
 };
 
 /*
