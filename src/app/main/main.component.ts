@@ -1,20 +1,14 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 import MetaMaskOnboarding from '@metamask/onboarding';
-import { Network, Alchemy } from "alchemy-sdk";
+import Moralis  from 'moralis';
+import { EvmChain } from '@moralisweb3/evm-utils';
 import { ethers, utils } from 'ethers';
 import { fromEvent, Subscription } from 'rxjs';
 import { Chain, ChainName } from '../services/chain';
 import { TokenService } from '../services/token.service';
 import { Destination, Token } from '../services/tokens';
 import { environment } from 'src/environments/environment';
-
-const alchemySettings = {
-  apiKey: environment.alchemyApiKey,
-  network: environment.chain == ChainName.Sepolia ? Network.ETH_SEPOLIA : Network.ETH_MAINNET
-};
-
-const alchemy = new Alchemy(alchemySettings);
 
 @Component({
   selector: 'app-main',
@@ -55,7 +49,17 @@ export class MainComponent implements OnInit, OnDestroy {
       tokenIdentifier: new FormControl(-1, { validators: [] }),
     });
 
+    console.log('Before metamask');
+
     this.metaMaskInstalled = MetaMaskOnboarding.isMetaMaskInstalled();
+
+    console.log('Before moralis');
+
+    Moralis.start({
+      apiKey: environment.moralisApiKey
+    });
+
+    console.log('After moralis');
   }
 
   ngOnInit(): void {
@@ -173,15 +177,18 @@ export class MainComponent implements OnInit, OnDestroy {
       //this.form.disable();
       this.registeryMessage = 'Retrieving IDs of NFTs owned by your wallet...';
 
-      const nftsForOwner = await alchemy.nft.getNftsForOwner(this.account);
+      const nftsForOwner = await Moralis.EvmApi.nft.getWalletNFTs({
+        address: this.account,
+        chain: (environment.chain == ChainName.Sepolia ? EvmChain.SEPOLIA : EvmChain.ETHEREUM)
+      });
 
       this.nfts = [];
 
-      for (const nft of nftsForOwner.ownedNfts) {
-        if (nft.contract.address.toUpperCase() != this.token.contract.address.toUpperCase())
+      for (const nft of nftsForOwner.result) {
+        if (nft.tokenAddress.checksum.toUpperCase() != this.token.contract.address.toUpperCase())
           continue;
 
-        this.nfts.push(nft.tokenId)
+        this.nfts.push(nft.result.tokenId.toString())
       }
       
       this.registeryMessage = undefined;
