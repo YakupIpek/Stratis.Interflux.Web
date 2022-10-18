@@ -1,9 +1,14 @@
 import { Contract, ethers } from 'ethers';
 import { metadata } from './key-value-metadata'
 
+export enum ChainName {
+  Main = 'Main',
+  Sepolia = 'Sepolia'
+}
+
 export interface ChainData {
   id: string,
-  name: 'Sepolia' | 'Main',
+  name: ChainName,
   /**multi-sig address*/
   multisigAddress: string;
   kvStoreAddress: string,
@@ -12,7 +17,7 @@ export interface ChainData {
 
 export class Chain {
   id: string;
-  name: 'Sepolia' | 'Main';
+  name: ChainName;
 
   /**multi-sig address*/
   multisigAddress: string;
@@ -33,7 +38,6 @@ export class Chain {
 
   async getAddress(account: string) {
     return await this.contract['get'](account, 'CirrusDestinationAddress') as Promise<string>;
-
   }
 
   txUrl(txId: string) {
@@ -48,17 +52,16 @@ export class Chain {
 export const CHAINS: ChainData[] = [
   {
     id: '0x1',
-    name: 'Main',
+    name: ChainName.Main,
     kvStoreAddress: '0x479b5ed883e49d31a7dcee3a3c872efde4dcfee9',
     multisigAddress: '0x14F768657135D3DaAFB45D242157055f1C9143f3',
     txUrlBase: 'https://etherscan.io/tx/'
   },
   {
     id: '0xaa36a7',
-    name: 'Sepolia',
+    name: ChainName.Sepolia,
     multisigAddress: '0x14F768657135D3DaAFB45D242157055f1C9143f3',
     kvStoreAddress: '0x5Da5cFe7D4Ce1cC0712eBC0BB58EFF93817A6801',//Multi-sig address contract
     txUrlBase: 'https://sepolia.etherscan.io/tx/',
   }
 ];
-

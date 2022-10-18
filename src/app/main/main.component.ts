@@ -1,11 +1,14 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 import MetaMaskOnboarding from '@metamask/onboarding';
+import Moralis  from 'moralis';
+import { EvmChain } from '@moralisweb3/evm-utils';
 import { ethers, utils } from 'ethers';
 import { fromEvent, Subscription } from 'rxjs';
-import { Chain } from '../services/chain';
+import { Chain, ChainName } from '../services/chain';
 import { TokenService } from '../services/token.service';
-import { Token } from '../services/tokens';
+import { Destination, Token } from '../services/tokens';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-main',
@@ -19,6 +22,7 @@ export class MainComponent implements OnInit, OnDestroy {
   balance = '0';
   chain?: Chain;
   tokenOptions: { title: string; tokens: Token[]; }[] = [];
+  nfts: string[] = [];
   token?: Token;
   form: FormGroup;
   tokens: Token[];
@@ -29,6 +33,8 @@ export class MainComponent implements OnInit, OnDestroy {
   registeryMessage?: string;
   alert?: { type: string, message: string };
   metaMaskInstalled: boolean;
+  networks = ChainName;
+  destinations = Destination;
   constructor(
     tokenService: TokenService,
     private web3Provider: ethers.providers.Web3Provider,
@@ -40,13 +46,17 @@ export class MainComponent implements OnInit, OnDestroy {
       tokenId: new FormControl(0, { validators: [] }),
       address: new FormControl(null, { validators: [Validators.required, this.validateAddress], asyncValidators: [this.validateAddressRegistery] }),
       amount: new FormControl(null, { validators: [] }),
+      tokenIdentifier: new FormControl(-1, { validators: [] }),
     });
 
     this.metaMaskInstalled = MetaMaskOnboarding.isMetaMaskInstalled();
+
+    Moralis.start({
+      apiKey: environment.moralisApiKey
+    });
   }
 
   ngOnInit(): void {
-    console.log(utils);
     this.ethereum = (window as any).ethereum;
 
     if (!this.ethereum)
@@ -63,11 +73,16 @@ export class MainComponent implements OnInit, OnDestroy {
     subscription = this.tokenId.valueChanges.subscribe((value: number) => this.tokenSelected(value));
 
     this.subscription.add(subscription);
+
+    subscription = this.tokenIdentifier.valueChanges.subscribe((value: number) => this.tokenIdentifierSelected(value));
+
+    this.subscription.add(subscription);
   }
 
   get tokenId() { return this.form.get('tokenId')!; }
   get amount() { return this.form.get('amount')!; }
   get address() { return this.form.get('address')!; }
+  get tokenIdentifier() { return this.form.get('tokenIdentifier')!; }
 
   closeAlert() {
     this.alert = undefined;
@@ -95,7 +110,7 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   validateAddressRegistery = async () => {
-    if (this.token?.destination == 'Strax')
+    if (this.token?.destination == Destination.Strax)
       return {};
 
     if (this.returnAddress == this.address.value)
@@ -151,34 +166,75 @@ export class MainComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!this.address.dirty && this.token!.destination == 'Cirrus') {
+    if (this.token.destination == Destination.CirrusNft)
+    {
+      //this.form.disable();
+      this.registeryMessage = 'Retrieving IDs of NFTs owned by your wallet...';
+
+      const nftsForOwner = await Moralis.EvmApi.nft.getWalletNFTs({
+        address: this.account,
+        chain: (environment.chain == ChainName.Sepolia ? EvmChain.SEPOLIA : EvmChain.ETHEREUM)
+      });
+
+      this.nfts = [];
+
+      for (const nft of nftsForOwner.result) {
+        if (nft.tokenAddress.checksum.toUpperCase() != this.token.contract.address.toUpperCase())
+          continue;
+
+        this.nfts.push(nft.result.tokenId.toString())
+      }
+      
+      this.registeryMessage = undefined;
+      //this.form.enable();
+    }
+
+    if (!this.address.dirty && (this.token!.destination == Destination.Cirrus || this.token!.destination == Destination.CirrusNft)) {
       this.address.setValue(this.returnAddress);
     } else if (!this.address.dirty) {
       this.address.setValue(null);
     }
 
-    this.balance = await this.token!.balance(this.account);
+    this.address.updateValueAndValidity();
 
     this.amount.clearValidators();
-    this.amount.addValidators([
-      Validators.required,
-      Validators.min(utils.formatUnits("1", this.token!.decimals) as any),
-      Validators.max(utils.formatUnits(this.balance, this.token!.decimals) as any)
-    ]);
+
+    if (this.token.destination != Destination.CirrusNft)
+    {
+      this.balance = await this.token!.balance(this.account);
+
+      this.amount.addValidators([
+        Validators.required,
+        Validators.min(utils.formatUnits("1", this.token!.decimals) as any),
+        Validators.max(utils.formatUnits(this.balance, this.token!.decimals) as any)
+      ]);
+    }
+    else
+    {
+      this.tokenIdentifier.addValidators([Validators.required, Validators.pattern('^(?!-1$).*$')]);
+    }
 
     this.amount.updateValueAndValidity();
-    this.address.updateValueAndValidity();
+    this.tokenIdentifier.updateValueAndValidity();
+  }
+
+  async tokenIdentifierSelected(tokenIdentifier: number)
+  {
   }
 
   updateTokenOptions() {
     this.tokenOptions = [
       {
         title: 'ETH To Strax Chain',
-        tokens: this.tokens.filter(t => t.destination == 'Strax' && t.chain == this.chain),
+        tokens: this.tokens.filter(t => t.destination == Destination.Strax && t.chain.id == this.chain?.id),
       },
       {
         title: 'ETH To Cirrus Sidechain',
-        tokens: this.tokens.filter(t => t.destination == 'Cirrus' && t.chain == this.chain),
+        tokens: this.tokens.filter(t => t.destination == Destination.Cirrus && t.chain.id == this.chain?.id),
+      },
+      {
+        title: 'ETH To Cirrus Sidechain (NFT)',
+        tokens: this.tokens.filter(t => t.destination == Destination.CirrusNft && t.chain.id == this.chain?.id),
       }
     ];
   }
@@ -218,11 +274,21 @@ export class MainComponent implements OnInit, OnDestroy {
     const token = this.token!;
     const chain = this.chain!;
 
-    var amount = utils.parseUnits(this.amount.value.toString(), token.decimals).toString();
+    let callData:string = '';
 
-    const callData = token.destination == 'Strax' ?
-      token.burnCall(amount, this.address.value) :
-      token.transferCall(chain.multisigAddress, amount);
+    if (token.destination != Destination.CirrusNft)
+    {
+      var amount = utils.parseUnits(this.amount.value.toString(), token.decimals).toString();
+
+      callData = token.destination == Destination.Strax ?
+        token.burnCall(amount, this.address.value) :
+        token.transferCall(chain.multisigAddress, amount);
+    }
+    else
+    {
+      // The same transfer() method can be used for ERC721 tokens, the only difference is that the 'amount' is now the token identifier.
+      callData = token.nftTransferCall(this.account, chain.multisigAddress, parseInt(this.tokenIdentifier.value));
+    }
 
     this.form.disable();
 
@@ -246,6 +312,7 @@ export class MainComponent implements OnInit, OnDestroy {
     await this.ethereum.request({
       method: 'wallet_watchAsset',
       params: {
+        // It is not clear if ERC721 is actually supported. In any case, the desktop Metamask has limited NFT support and can only really show a count of NFTs rather than individual metadata.
         type: 'ERC20',
         options: {
           address: this.token!.erc20,
