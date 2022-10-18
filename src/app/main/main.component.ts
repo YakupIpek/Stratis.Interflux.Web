@@ -49,17 +49,11 @@ export class MainComponent implements OnInit, OnDestroy {
       tokenIdentifier: new FormControl(-1, { validators: [] }),
     });
 
-    console.log('Before metamask');
-
     this.metaMaskInstalled = MetaMaskOnboarding.isMetaMaskInstalled();
-
-    console.log('Before moralis');
 
     Moralis.start({
       apiKey: environment.moralisApiKey
     });
-
-    console.log('After moralis');
   }
 
   ngOnInit(): void {
