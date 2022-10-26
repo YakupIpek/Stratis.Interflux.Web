@@ -98,3 +98,17 @@ export interface TokenData {
   addressPrefix: number;
   decimals: number;
 }
+
+interface OwnedNft {
+  contractAddress: string,
+  tokenIdentifiers: number[]
+}
+
+export interface OwnedNftResponse {
+  ownedNfts: OwnedNft[];
+}
+
+export interface Nft {
+  contract: string,
+  tokenId: number
+}

@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { ethers } from 'ethers';
-import { Chain, ChainName, CHAINS } from './chain';
+import { Chain, CHAINS } from './chain';
 import { Token, TokenData, InterFluxTokenResponse, Destination } from './tokens';
 import { RestApi } from './rest-api';
-import { HttpClient, HttpHandler } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 
 @Injectable({

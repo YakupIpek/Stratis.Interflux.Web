@@ -6,5 +6,4 @@ export interface Environment {
     wstraxaddress: string;
     wstraxaddressprefix: number;
     chain: ChainName;
-    moralisApiKey: string;
   }
