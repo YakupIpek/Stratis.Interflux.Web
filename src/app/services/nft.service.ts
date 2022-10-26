@@ -8,23 +8,29 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class NftService extends RestApi {
-  tokens: Nft[];
+    http: HttpClient;
 
   constructor(http: HttpClient) {
     super(http, environment.apiEndpoint);
+    this.http = http;
+  }
 
-    this.tokens = []
+  public getOwnedNfts(account: string) : Nft[]
+  {
+    let tokens : Nft[] = [];
 
-    this.get<OwnedNftResponse>('ownednfts').subscribe(res => {
+    this.get<OwnedNftResponse>('ownednfts?address=' + account).subscribe(res => {
 
-      res.ownedNfts.forEach((ownedNft, i) => {
+      res.ownedNfts.forEach((ownedNft) => {
         if (ownedNft.contractAddress != undefined)
         {
             ownedNft.tokenIdentifiers.forEach((tokenId) => {
-                this.tokens.push({contract: ownedNft.contractAddress, tokenId: tokenId});
+                tokens.push({contract: ownedNft.contractAddress, tokenId: tokenId});
             });
         }
       });
     });
+
+    return tokens;
   }
 }
