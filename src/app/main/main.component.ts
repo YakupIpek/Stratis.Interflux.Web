@@ -1,14 +1,12 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 import MetaMaskOnboarding from '@metamask/onboarding';
-import Moralis  from 'moralis';
-import { EvmChain } from '@moralisweb3/evm-utils';
 import { ethers, utils } from 'ethers';
 import { fromEvent, Subscription } from 'rxjs';
 import { Chain, ChainName } from '../services/chain';
 import { TokenService } from '../services/token.service';
+import { NftService } from '../services/nft.service';
 import { Destination, Token } from '../services/tokens';
-import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-main',
@@ -26,6 +24,7 @@ export class MainComponent implements OnInit, OnDestroy {
   token?: Token;
   form: FormGroup;
   tokens: Token[];
+  nftService: NftService;
   chains: Chain[];
   ethereum: any;
   subscription = new Subscription();
@@ -37,11 +36,13 @@ export class MainComponent implements OnInit, OnDestroy {
   destinations = Destination;
   constructor(
     tokenService: TokenService,
+    nftService: NftService,
     private web3Provider: ethers.providers.Web3Provider,
     @Inject('BASE_URL') private baseUrl: string
   ) {
     this.tokens = tokenService.tokens;
     this.chains = tokenService.chains;
+    this.nftService = nftService;
     this.form = new FormGroup({
       tokenId: new FormControl(0, { validators: [] }),
       address: new FormControl(null, { validators: [Validators.required, this.validateAddress], asyncValidators: [this.validateAddressRegistery] }),
@@ -50,10 +51,6 @@ export class MainComponent implements OnInit, OnDestroy {
     });
 
     this.metaMaskInstalled = MetaMaskOnboarding.isMetaMaskInstalled();
-
-    Moralis.start({
-      apiKey: environment.moralisApiKey
-    });
   }
 
   ngOnInit(): void {
@@ -171,18 +168,13 @@ export class MainComponent implements OnInit, OnDestroy {
       //this.form.disable();
       this.registeryMessage = 'Retrieving IDs of NFTs owned by your wallet...';
 
-      const nftsForOwner = await Moralis.EvmApi.nft.getWalletNFTs({
-        address: this.account,
-        chain: (environment.chain == ChainName.Sepolia ? EvmChain.SEPOLIA : EvmChain.ETHEREUM)
-      });
-
       this.nfts = [];
 
-      for (const nft of nftsForOwner.result) {
-        if (nft.tokenAddress.checksum.toUpperCase() != this.token.contract.address.toUpperCase())
+      for (const nft of this.nftService.tokens) {
+        if (nft.contract.toUpperCase() != this.token.contract.address.toUpperCase())
           continue;
 
-        this.nfts.push(nft.result.tokenId.toString())
+        this.nfts.push(nft.tokenId.toString())
       }
       
       this.registeryMessage = undefined;
