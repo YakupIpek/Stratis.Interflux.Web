@@ -2,11 +2,11 @@ import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 import MetaMaskOnboarding from '@metamask/onboarding';
 import { ethers, utils } from 'ethers';
-import { fromEvent, Subscription } from 'rxjs';
+import { fromEvent, Observable, Subscription, of, from } from 'rxjs';
 import { Chain, ChainName } from '../services/chain';
 import { TokenService } from '../services/token.service';
 import { NftService } from '../services/nft.service';
-import { Destination, Token } from '../services/tokens';
+import { Destination, Token, Nft } from '../services/tokens';
 
 @Component({
   selector: 'app-main',
@@ -21,6 +21,7 @@ export class MainComponent implements OnInit, OnDestroy {
   chain?: Chain;
   tokenOptions: { title: string; tokens: Token[]; }[] = [];
   nfts: string[] = [];
+  nftData$!: Observable<Nft[]>;
   token?: Token;
   form: FormGroup;
   tokens: Token[];
@@ -43,6 +44,7 @@ export class MainComponent implements OnInit, OnDestroy {
     this.tokens = tokenService.tokens;
     this.chains = tokenService.chains;
     this.nftService = nftService;
+    
     this.form = new FormGroup({
       tokenId: new FormControl(0, { validators: [] }),
       address: new FormControl(null, { validators: [Validators.required, this.validateAddress], asyncValidators: [this.validateAddressRegistery] }),
@@ -74,6 +76,8 @@ export class MainComponent implements OnInit, OnDestroy {
     subscription = this.tokenIdentifier.valueChanges.subscribe((value: number) => this.tokenIdentifierSelected(value));
 
     this.subscription.add(subscription);
+
+    this.nftData$ = from(this.nftService.getOwnedNfts(this.account));
   }
 
   get tokenId() { return this.form.get('tokenId')!; }
@@ -152,7 +156,10 @@ export class MainComponent implements OnInit, OnDestroy {
       this.connected = false;
       return;
     }
+
     this.account = accounts[0];
+
+    this.nftData$ = from(this.nftService.getOwnedNfts(this.account));
   }
 
   async tokenSelected(tokenId: number) {
@@ -168,15 +175,6 @@ export class MainComponent implements OnInit, OnDestroy {
       //this.form.disable();
       this.registeryMessage = 'Retrieving IDs of NFTs owned by your wallet...';
 
-      this.nfts = [];
-
-      for (const nft of this.nftService.getOwnedNfts(this.account)) {
-        if (nft.contract.toUpperCase() != this.token.contract.address.toUpperCase())
-          continue;
-
-        this.nfts.push(nft.tokenId.toString())
-      }
-      
       this.registeryMessage = undefined;
       //this.form.enable();
     }

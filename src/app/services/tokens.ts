@@ -100,12 +100,12 @@ export interface TokenData {
 }
 
 interface OwnedNft {
-  contractAddress: string,
+  //contractAddress: string,
   tokenIdentifiers: number[]
 }
 
 export interface OwnedNftResponse {
-  ownedNfts: OwnedNft[];
+  ownedNfts: number[][];
 }
 
 export interface Nft {

@@ -54,7 +54,9 @@
 
           <select *ngIf="token?.destination == destinations.CirrusNft" class="form-select mb-3" formControlName="tokenIdentifier">
             <option [ngValue]="-1">Please Select NFT</option>
-            <option *ngFor="let tid of nfts" [ngValue]="tid">{{ tid }}</option>
+            <ng-container *ngFor="let tid of (nftData$ | async)">
+              <option *ngIf="tid.contract.toUpperCase() == token?.erc20?.toUpperCase()" [ngValue]="tid.tokenId" >{{ tid.tokenId }}</option>
+            </ng-container>
           </select>
 
           <div *ngIf="token?.destination != destinations.CirrusNft" class="input-group mb-3">

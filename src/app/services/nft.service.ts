@@ -15,20 +15,20 @@ export class NftService extends RestApi {
     this.http = http;
   }
 
-  public getOwnedNfts(account: string) : Nft[]
+  public async getOwnedNfts(account: string) : Promise<Nft[]>
   {
     let tokens : Nft[] = [];
 
-    this.get<OwnedNftResponse>('ownednfts?address=' + account).subscribe(res => {
+    if (!account)
+      return tokens;
 
-      res.ownedNfts.forEach((ownedNft) => {
-        if (ownedNft.contractAddress != undefined)
+    await this.get<OwnedNftResponse>('ownednfts?address=' + account).subscribe(res => {
+        for (var key in res.ownedNfts)
         {
-            ownedNft.tokenIdentifiers.forEach((tokenId) => {
-                tokens.push({contract: ownedNft.contractAddress, tokenId: tokenId});
+            res.ownedNfts[key].forEach(tokenId => { 
+                tokens.push({contract: key, tokenId: tokenId});
             });
         }
-      });
     });
 
     return tokens;
